@@ -7,16 +7,15 @@ import (
 )
 
 func TestIter(t *testing.T) {
-	iter := testNode.iter(nil)
+	iter := testNode.newIter()
 
 	out := new(strings.Builder)
-	var n Int
 	for {
-		n, iter = iter()
-		fmt.Fprintf(out, "%v", n)
-		if iter == nil {
+		n, ok := iter.Next()
+		if !ok {
 			break
 		}
+		fmt.Fprintf(out, "%v", n)
 	}
 
 	if out.String() != "132654" {
@@ -44,11 +43,11 @@ var testNode = &node[Int]{
 }
 
 func BenchmarkIter(b *testing.B) {
-	iter := testNode.iter(nil)
+	iter := testNode.newIter()
 	for i := 0; i < b.N; i++ {
-		_, iter = iter()
-		if iter == nil {
-			iter = testNode.iter(nil)
+		_, ok := iter.Next()
+		if !ok {
+			iter = testNode.newIter()
 		}
 	}
 }

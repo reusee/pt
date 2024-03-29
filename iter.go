@@ -1,12 +1,32 @@
 package pt
 
-type Iter[T any] func() (T, Iter[T])
+type Iter[T ordered[T]] struct {
+	current *node[T]
+	stack   []*node[T]
+}
 
-func (n *node[T]) iter(cont Iter[T]) Iter[T] {
-	if n == nil {
-		return cont
+func (i *Iter[T]) Next() (ret T, ok bool) {
+	for i.current != nil {
+		i.stack = append(i.stack, i.current)
+		i.current = i.current.left
 	}
-	return n.left.iter(func() (T, Iter[T]) {
-		return n.value, n.right.iter(cont)
-	})
+	if len(i.stack) == 0 {
+		return
+	}
+	node := i.stack[len(i.stack)-1]
+	i.stack = i.stack[:len(i.stack)-1]
+	ret = node.value
+	ok = true
+	i.current = node.right
+	return
+}
+
+func (t *Treap[T]) NewIter() *Iter[T] {
+	return t.root.newIter()
+}
+
+func (n *node[T]) newIter() *Iter[T] {
+	return &Iter[T]{
+		current: n,
+	}
 }
