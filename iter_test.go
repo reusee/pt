@@ -47,7 +47,9 @@ func BenchmarkIter(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, ok := iter.Next()
 		if !ok {
+			iter.Close()
 			iter = testNode.newIter()
 		}
 	}
+	iter.Close()
 }
