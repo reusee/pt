@@ -43,13 +43,29 @@ var testNode = &node[Int]{
 }
 
 func BenchmarkIter(b *testing.B) {
-	iter := testNode.newIter()
 	for i := 0; i < b.N; i++ {
-		_, ok := iter.Next()
-		if !ok {
-			iter.Close()
-			iter = testNode.newIter()
+		iter := testNode.newIter()
+		for {
+			_, ok := iter.Next()
+			if !ok {
+				break
+			}
 		}
+		iter.Close()
 	}
-	iter.Close()
+}
+
+func BenchmarkParallelIter(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			iter := testNode.newIter()
+			for {
+				_, ok := iter.Next()
+				if !ok {
+					break
+				}
+			}
+			iter.Close()
+		}
+	})
 }
