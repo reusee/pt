@@ -8,6 +8,7 @@ import (
 
 func TestIter(t *testing.T) {
 	iter := testNode.newIter()
+	defer iter.Close()
 
 	out := new(strings.Builder)
 	for {
