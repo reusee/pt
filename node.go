@@ -32,7 +32,7 @@ func (n *node[T]) insert(value T, priority int64) *node[T] {
 			return &ret
 		}
 
-		//TODO rotate
+		panic("fixme")
 
 	case -1:
 		// insert left
