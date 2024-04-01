@@ -68,6 +68,10 @@ func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
 
 	if (left == nil || middle.priority >= left.priority) &&
 		(right == nil || middle.priority >= right.priority) {
+		if middle.left == left && middle.right == right {
+			// no change
+			return middle
+		}
 		// no rotation
 		return &node[T]{
 			value:    middle.value,
