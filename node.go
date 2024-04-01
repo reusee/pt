@@ -59,6 +59,11 @@ func (n *node[T]) upsertSlow(value T, priority Priority) *node[T] {
 }
 
 func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
+	if middle.priority == minPriority && left == nil && right == nil {
+		// leaf node to be deleted
+		return nil
+	}
+
 	if (left == nil || middle.priority >= left.priority) &&
 		(right == nil || middle.priority >= right.priority) {
 		// no rotation
@@ -118,4 +123,8 @@ func (n *node[T]) dump(out io.Writer, level int) {
 	fmt.Fprintf(out, "value %v, priority %v\n", n.value, n.priority)
 	n.left.dump(out, level+1)
 	n.right.dump(out, level+1)
+}
+
+func (n *node[T]) remove(value T) *node[T] {
+	return n.upsert(value, minPriority)
 }

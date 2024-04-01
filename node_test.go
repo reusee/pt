@@ -31,6 +31,13 @@ func TestUpsert(t *testing.T) {
 	} else {
 		pt("num %v, height %v\n", num, h)
 	}
+
+	for _, i := range rand.Perm(num) {
+		n = n.remove(Int(i))
+	}
+	if n.height() != 0 {
+		t.Fatal()
+	}
 }
 
 func TestUpsertPersistence(t *testing.T) {
