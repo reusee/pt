@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestInsert(t *testing.T) {
+func TestUpsert(t *testing.T) {
 	const num = 65536
 	var n *node[Int]
 	for _, i := range rand.Perm(num) {
@@ -24,6 +24,33 @@ func TestInsert(t *testing.T) {
 		}
 	}
 
+}
+
+func TestUpsertPersistence(t *testing.T) {
+	const num = 1024
+	var nodes []*node[Int]
+	var n *node[Int]
+	for i := Int(0); i < num; i++ {
+		n = n.upsert(i, rand.Int63())
+		nodes = append(nodes, n)
+	}
+	for i, n := range nodes {
+		iter := n.newIter()
+		for expected := Int(0); expected < Int(i+1); expected++ {
+			got, ok := iter.Next()
+			if !ok {
+				t.Fatal()
+			}
+			if got != expected {
+				t.Fatal()
+			}
+		}
+		_, ok := iter.Next()
+		if ok {
+			t.Fatal()
+		}
+		iter.Close()
+	}
 }
 
 func BenchmarkUpsert(b *testing.B) {
