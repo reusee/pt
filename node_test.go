@@ -7,13 +7,17 @@ import (
 )
 
 func TestNode(t *testing.T) {
-	const num = 65536
+	const num = 4096
 	var n *node[Int]
 
 	// upsert
 	for _, i := range rand.Perm(num) {
 		priority := NewPriority()
-		n = n.upsert(Int(i), priority)
+		existed := false
+		n, existed = n.upsert(Int(i), priority)
+		if existed {
+			t.Fatal()
+		}
 	}
 
 	// iter
@@ -36,9 +40,30 @@ func TestNode(t *testing.T) {
 		pt("num %v, height %v\n", num, h)
 	}
 
+	// split
+	for i := 0; i < num; i++ {
+		split, existed := n.split(Int(i))
+		if !existed {
+			t.Fatal()
+		}
+		if l := split.length(); l != num {
+			t.Fatalf("got %v, expected %v", l, num)
+		}
+		if l := split.left.length(); l != i {
+			t.Fatal()
+		}
+		if l := split.right.length(); l != num-i-1 {
+			t.Fatalf("got %v, expected %v", l, num-i-1)
+		}
+	}
+
 	// remove
 	for _, i := range rand.Perm(num) {
-		n = n.remove(Int(i))
+		removed := false
+		n, removed = n.remove(Int(i))
+		if !removed {
+			t.Fatal()
+		}
 	}
 	if n.height() != 0 {
 		t.Fatal()
@@ -50,7 +75,7 @@ func TestUpsertPersistence(t *testing.T) {
 	var nodes []*node[Int]
 	var n *node[Int]
 	for i := Int(0); i < num; i++ {
-		n = n.upsert(i, NewPriority())
+		n, _ = n.upsert(i, NewPriority())
 		nodes = append(nodes, n)
 	}
 	for i, n := range nodes {
@@ -75,17 +100,17 @@ func TestUpsertPersistence(t *testing.T) {
 func BenchmarkUpsert(b *testing.B) {
 	var n *node[Int]
 	for i := 0; i < b.N; i++ {
-		n = n.upsert(Int(i), NewPriority())
+		n, _ = n.upsert(Int(i), NewPriority())
 	}
 }
 
 func BenchmarkDelete(b *testing.B) {
 	var n *node[Int]
 	for i := 0; i < b.N; i++ {
-		n = n.upsert(Int(i), NewPriority())
+		n, _ = n.upsert(Int(i), NewPriority())
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		n = n.remove(Int(i))
+		n, _ = n.remove(Int(i))
 	}
 }

@@ -12,38 +12,40 @@ type node[T ordered[T]] struct {
 	right    *node[T]
 }
 
-func (n *node[T]) upsert(value T, priority Priority) *node[T] {
+func (n *node[T]) upsert(value T, priority Priority) (ret *node[T], existed bool) {
 	if n != nil {
 		return n.upsertSlow(value, priority)
 	}
 	return &node[T]{
 		value:    value,
 		priority: priority,
-	}
+	}, false
 }
 
-func (n *node[T]) upsertSlow(value T, priority Priority) *node[T] {
+func (n *node[T]) upsertSlow(value T, priority Priority) (ret *node[T], existed bool) {
 	switch value.Compare(n.value) {
 
 	case -1:
+		left, existed := n.left.upsert(value, priority)
 		return join(
 			n,
-			n.left.upsert(value, priority),
+			left,
 			n.right,
-		)
+		), existed
 
 	case 1:
+		right, existed := n.right.upsert(value, priority)
 		return join(
 			n,
 			n.left,
-			n.right.upsert(value, priority),
-		)
+			right,
+		), existed
 
 	case 0:
 		// exists
 		if n.priority == priority {
 			// same
-			return n
+			return n, true
 		}
 		return join(
 			&node[T]{
@@ -52,7 +54,7 @@ func (n *node[T]) upsertSlow(value T, priority Priority) *node[T] {
 			},
 			n.left,
 			n.right,
-		)
+		), true
 
 	}
 	panic("bad Compare result")
@@ -125,10 +127,17 @@ func (n *node[T]) dump(out io.Writer, level int) {
 	n.right.dump(out, level+1)
 }
 
-func (n *node[T]) remove(value T) *node[T] {
+func (n *node[T]) remove(value T) (ret *node[T], removed bool) {
 	return n.upsert(value, minPriority)
 }
 
-func (n *node[T]) split(value T) *node[T] {
+func (n *node[T]) split(value T) (ret *node[T], existed bool) {
 	return n.upsert(value, maxPriority)
+}
+
+func (n *node[T]) length() int {
+	if n == nil {
+		return 0
+	}
+	return 1 + n.left.length() + n.right.length()
 }
