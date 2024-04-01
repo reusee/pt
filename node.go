@@ -14,7 +14,10 @@ func (n *node[T]) upsert(value T, priority int64) *node[T] {
 			priority: priority,
 		}
 	}
+	return n.upsertSlow(value, priority)
+}
 
+func (n *node[T]) upsertSlow(value T, priority int64) *node[T] {
 	switch value.Compare(n.value) {
 
 	case 0:
