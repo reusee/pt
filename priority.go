@@ -7,8 +7,11 @@ import (
 
 type Priority = int64
 
-const minPriority = math.MinInt64
+const (
+	minPriority = math.MinInt64
+	maxPriority = math.MaxInt64
+)
 
 func NewPriority() Priority {
-	return rand.Int64()
+	return rand.Int64() - 1 // minus one to avoid returning the max int64
 }

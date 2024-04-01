@@ -6,14 +6,17 @@ import (
 	"testing"
 )
 
-func TestUpsert(t *testing.T) {
+func TestNode(t *testing.T) {
 	const num = 65536
 	var n *node[Int]
+
+	// upsert
 	for _, i := range rand.Perm(num) {
 		priority := NewPriority()
 		n = n.upsert(Int(i), priority)
 	}
 
+	// iter
 	iter := n.newIter()
 	defer iter.Close()
 	for i := 0; i < num; i++ {
@@ -26,12 +29,14 @@ func TestUpsert(t *testing.T) {
 		}
 	}
 
+	// height
 	if h := n.height(); h > int(math.Log2(float64(65536))*3) {
 		t.Fatalf("got %v", n.height())
 	} else {
 		pt("num %v, height %v\n", num, h)
 	}
 
+	// remove
 	for _, i := range rand.Perm(num) {
 		n = n.remove(Int(i))
 	}

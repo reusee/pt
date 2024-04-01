@@ -128,3 +128,7 @@ func (n *node[T]) dump(out io.Writer, level int) {
 func (n *node[T]) remove(value T) *node[T] {
 	return n.upsert(value, minPriority)
 }
+
+func (n *node[T]) split(value T) *node[T] {
+	return n.upsert(value, maxPriority)
+}
