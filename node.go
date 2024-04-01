@@ -95,3 +95,10 @@ func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
 
 	panic("impossible")
 }
+
+func (n *node[T]) height() int {
+	if n == nil {
+		return 0
+	}
+	return 1 + max(n.left.height()+n.right.height())
+}
