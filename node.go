@@ -8,17 +8,31 @@ type node[T ordered[T]] struct {
 }
 
 func (n *node[T]) upsert(value T, priority int64) *node[T] {
-	if n == nil {
-		return &node[T]{
-			value:    value,
-			priority: priority,
-		}
+	if n != nil {
+		return n.upsertSlow(value, priority)
 	}
-	return n.upsertSlow(value, priority)
+	return &node[T]{
+		value:    value,
+		priority: priority,
+	}
 }
 
 func (n *node[T]) upsertSlow(value T, priority int64) *node[T] {
 	switch value.Compare(n.value) {
+
+	case -1:
+		return join(
+			n,
+			n.left.upsert(value, priority),
+			n.right,
+		)
+
+	case 1:
+		return join(
+			n,
+			n.left,
+			n.right.upsert(value, priority),
+		)
 
 	case 0:
 		// exists
@@ -33,20 +47,6 @@ func (n *node[T]) upsertSlow(value T, priority int64) *node[T] {
 			},
 			n.left,
 			n.right,
-		)
-
-	case -1:
-		return join(
-			n,
-			n.left.upsert(value, priority),
-			n.right,
-		)
-
-	case 1:
-		return join(
-			n,
-			n.left,
-			n.right.upsert(value, priority),
 		)
 
 	}
