@@ -114,3 +114,14 @@ func BenchmarkDelete(b *testing.B) {
 		n, _ = n.remove(Int(i))
 	}
 }
+
+func BenchmarkSplit(b *testing.B) {
+	var n *node[Int]
+	for i := 0; i < b.N; i++ {
+		n, _ = n.upsert(Int(i), NewPriority())
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		n, _ = n.split(Int(i))
+	}
+}
