@@ -108,20 +108,6 @@ func (n *node[T]) height() int {
 	return 1 + max(n.left.height(), n.right.height())
 }
 
-func (n *node[T]) checkHeap() {
-	if n == nil {
-		return
-	}
-	if n.left != nil && n.priority < n.left.priority {
-		panic("bad")
-	}
-	if n.right != nil && n.priority < n.right.priority {
-		panic("bad")
-	}
-	n.left.checkHeap()
-	n.right.checkHeap()
-}
-
 func (n *node[T]) dump(out io.Writer, level int) {
 	if n == nil {
 		return
