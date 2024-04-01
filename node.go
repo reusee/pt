@@ -1,5 +1,10 @@
 package pt
 
+import (
+	"fmt"
+	"io"
+)
+
 type node[T ordered[T]] struct {
 	value    T
 	priority Priority
@@ -100,5 +105,31 @@ func (n *node[T]) height() int {
 	if n == nil {
 		return 0
 	}
-	return 1 + max(n.left.height()+n.right.height())
+	return 1 + max(n.left.height(), n.right.height())
+}
+
+func (n *node[T]) checkHeap() {
+	if n == nil {
+		return
+	}
+	if n.left != nil && n.priority < n.left.priority {
+		panic("bad")
+	}
+	if n.right != nil && n.priority < n.right.priority {
+		panic("bad")
+	}
+	n.left.checkHeap()
+	n.right.checkHeap()
+}
+
+func (n *node[T]) dump(out io.Writer, level int) {
+	if n == nil {
+		return
+	}
+	for i := 0; i < level; i++ {
+		out.Write([]byte("\t"))
+	}
+	fmt.Fprintf(out, "value %v, priority %v\n", n.value, n.priority)
+	n.left.dump(out, level+1)
+	n.right.dump(out, level+1)
 }

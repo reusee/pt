@@ -1,6 +1,7 @@
 package pt
 
 import (
+	"math"
 	"math/rand"
 	"testing"
 )
@@ -9,7 +10,8 @@ func TestUpsert(t *testing.T) {
 	const num = 65536
 	var n *node[Int]
 	for _, i := range rand.Perm(num) {
-		n = n.upsert(Int(i), NewPriority())
+		priority := NewPriority()
+		n = n.upsert(Int(i), priority)
 	}
 
 	iter := n.newIter()
@@ -24,6 +26,11 @@ func TestUpsert(t *testing.T) {
 		}
 	}
 
+	if h := n.height(); h > int(math.Log2(float64(65536))*3) {
+		t.Fatalf("got %v", n.height())
+	} else {
+		pt("num %v, height %v\n", num, h)
+	}
 }
 
 func TestUpsertPersistence(t *testing.T) {
