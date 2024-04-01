@@ -7,7 +7,7 @@ type node[T ordered[T]] struct {
 	right    *node[T]
 }
 
-func (n *node[T]) insert(value T, priority int64) *node[T] {
+func (n *node[T]) upsert(value T, priority int64) *node[T] {
 	if n == nil {
 		return &node[T]{
 			value:    value,
@@ -23,75 +23,67 @@ func (n *node[T]) insert(value T, priority int64) *node[T] {
 			// same
 			return n
 		}
-
-		ret := *n
-		ret.priority = priority
-		if (ret.left == nil || ret.left.priority <= ret.priority) &&
-			(ret.right == nil || ret.right.priority <= ret.priority) {
-			// no rotation
-			return &ret
-		}
-
-		panic("fixme")
+		return join(
+			&node[T]{
+				value:    n.value,
+				priority: priority,
+			},
+			n.left,
+			n.right,
+		)
 
 	case -1:
-		// insert left
-		left := n.left.insert(value, priority)
-		if left == n.left {
-			// no insert
-			return n
-		}
-		if n.priority >= left.priority {
-			// no rotation
-			return &node[T]{
-				value:    n.value,
-				priority: n.priority,
-				left:     left,
-				right:    n.right,
-			}
-		}
-		// rotate
+		return join(
+			n,
+			n.left.upsert(value, priority),
+			n.right,
+		)
+
+	case 1:
+		return join(
+			n,
+			n.left,
+			n.right.upsert(value, priority),
+		)
+
+	}
+	panic("bad Compare result")
+}
+
+func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
+	if left != nil && left.priority > middle.priority && (right == nil || left.priority > right.priority) {
+		// rotate right
 		return &node[T]{
 			value:    left.value,
 			priority: left.priority,
 			left:     left.left,
-			right: &node[T]{
-				value:    n.value,
-				priority: n.priority,
-				left:     left.right,
-				right:    n.right,
-			},
+			right: join(
+				middle,
+				left.right,
+				right,
+			),
 		}
+	}
 
-	case 1:
-		// insert right
-		right := n.right.insert(value, priority)
-		if right == n.right {
-			// no insert
-			return n
-		}
-		if n.priority >= right.priority {
-			// no rotation
-			return &node[T]{
-				value:    n.value,
-				priority: n.priority,
-				left:     n.left,
-				right:    right,
-			}
-		}
-		// rotate
+	if right != nil && right.priority > middle.priority && (left == nil || right.priority > left.priority) {
+		// rotate left
 		return &node[T]{
 			value:    right.value,
 			priority: right.priority,
-			left: &node[T]{
-				value:    n.value,
-				priority: n.priority,
-				left:     n.left,
-				right:    right.left,
-			},
+			left: join(
+				middle,
+				left,
+				right.left,
+			),
 			right: right.right,
 		}
-
 	}
-	panic("bad Compare result")
+
+	// no rotation
+	return &node[T]{
+		value:    middle.value,
+		priority: middle.priority,
+		left:     left,
+		right:    right,
+	}
 }

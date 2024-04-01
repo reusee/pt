@@ -9,7 +9,7 @@ func TestInsert(t *testing.T) {
 	const num = 65536
 	var n *node[Int]
 	for _, i := range rand.Perm(num) {
-		n = n.insert(Int(i), rand.Int63())
+		n = n.upsert(Int(i), rand.Int63())
 	}
 
 	iter := n.newIter()
@@ -26,9 +26,9 @@ func TestInsert(t *testing.T) {
 
 }
 
-func BenchmarkInsert(b *testing.B) {
+func BenchmarkUpsert(b *testing.B) {
 	var n *node[Int]
 	for i := 0; i < b.N; i++ {
-		n = n.insert(Int(i), rand.Int63())
+		n = n.upsert(Int(i), rand.Int63())
 	}
 }
