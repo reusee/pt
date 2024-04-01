@@ -73,3 +73,14 @@ func BenchmarkUpsert(b *testing.B) {
 		n = n.upsert(Int(i), NewPriority())
 	}
 }
+
+func BenchmarkDelete(b *testing.B) {
+	var n *node[Int]
+	for i := 0; i < b.N; i++ {
+		n = n.upsert(Int(i), NewPriority())
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		n = n.remove(Int(i))
+	}
+}
