@@ -9,7 +9,7 @@ func TestUpsert(t *testing.T) {
 	const num = 65536
 	var n *node[Int]
 	for _, i := range rand.Perm(num) {
-		n = n.upsert(Int(i), rand.Int63())
+		n = n.upsert(Int(i), NewPriority())
 	}
 
 	iter := n.newIter()
@@ -31,7 +31,7 @@ func TestUpsertPersistence(t *testing.T) {
 	var nodes []*node[Int]
 	var n *node[Int]
 	for i := Int(0); i < num; i++ {
-		n = n.upsert(i, rand.Int63())
+		n = n.upsert(i, NewPriority())
 		nodes = append(nodes, n)
 	}
 	for i, n := range nodes {
@@ -56,6 +56,6 @@ func TestUpsertPersistence(t *testing.T) {
 func BenchmarkUpsert(b *testing.B) {
 	var n *node[Int]
 	for i := 0; i < b.N; i++ {
-		n = n.upsert(Int(i), rand.Int63())
+		n = n.upsert(Int(i), NewPriority())
 	}
 }

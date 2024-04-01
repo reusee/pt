@@ -2,12 +2,12 @@ package pt
 
 type node[T ordered[T]] struct {
 	value    T
-	priority int64
+	priority Priority
 	left     *node[T]
 	right    *node[T]
 }
 
-func (n *node[T]) upsert(value T, priority int64) *node[T] {
+func (n *node[T]) upsert(value T, priority Priority) *node[T] {
 	if n != nil {
 		return n.upsertSlow(value, priority)
 	}
@@ -17,7 +17,7 @@ func (n *node[T]) upsert(value T, priority int64) *node[T] {
 	}
 }
 
-func (n *node[T]) upsertSlow(value T, priority int64) *node[T] {
+func (n *node[T]) upsertSlow(value T, priority Priority) *node[T] {
 	switch value.Compare(n.value) {
 
 	case -1:
