@@ -54,6 +54,17 @@ func (n *node[T]) upsertSlow(value T, priority Priority) *node[T] {
 }
 
 func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
+	if (left == nil || middle.priority >= left.priority) &&
+		(right == nil || middle.priority >= right.priority) {
+		// no rotation
+		return &node[T]{
+			value:    middle.value,
+			priority: middle.priority,
+			left:     left,
+			right:    right,
+		}
+	}
+
 	if left != nil && left.priority > middle.priority && (right == nil || left.priority > right.priority) {
 		// rotate right
 		return &node[T]{
@@ -82,11 +93,5 @@ func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
 		}
 	}
 
-	// no rotation
-	return &node[T]{
-		value:    middle.value,
-		priority: middle.priority,
-		left:     left,
-		right:    right,
-	}
+	panic("impossible")
 }
