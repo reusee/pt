@@ -202,11 +202,34 @@ func buildSlow[T ordered[T]](slice []T) *node[T] {
 		left:     build(left),
 		right:    build(right),
 	}
-	if ret.left != nil && ret.left.priority > ret.priority {
-		ret.priority, ret.left.priority = ret.left.priority, ret.priority
-	}
-	if ret.right != nil && ret.right.priority > ret.priority {
-		ret.priority, ret.right.priority = ret.right.priority, ret.priority
-	}
+	heapify(ret)
 	return ret
+}
+
+func heapify[T ordered[T]](n *node[T]) {
+	max := n
+	if n.left != nil && n.left.priority > max.priority {
+		max = n.left
+	}
+	if n.right != nil && n.right.priority > max.priority {
+		max = n.right
+	}
+	if max != n {
+		max.priority, n.priority = n.priority, max.priority
+		heapify(max)
+	}
+}
+
+func (n *node[T]) checkHeap() {
+	if n == nil {
+		return
+	}
+	if n.left != nil && n.left.priority > n.priority {
+		panic("bad heap")
+	}
+	if n.right != nil && n.right.priority > n.priority {
+		panic("bad heap")
+	}
+	n.left.checkHeap()
+	n.right.checkHeap()
 }

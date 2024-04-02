@@ -209,6 +209,7 @@ func TestBuild(t *testing.T) {
 	if n.length() != 65536 {
 		t.Fatal()
 	}
+	n.checkHeap()
 }
 
 func BenchmarkBuild65536(b *testing.B) {
