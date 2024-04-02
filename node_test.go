@@ -190,3 +190,12 @@ func BenchmarkGet(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkUpsert65536(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var n *node[Int]
+		for k := range 65536 {
+			n, _ = n.upsert(Int(k), NewPriority())
+		}
+	}
+}
