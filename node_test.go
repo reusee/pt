@@ -205,7 +205,7 @@ func TestBuild(t *testing.T) {
 	for i := 0; i < 65536; i++ {
 		slice = append(slice, Int(i))
 	}
-	n := build(slice, maxPriority)
+	n := build(slice)
 	if n.length() != 65536 {
 		t.Fatal()
 	}
@@ -218,6 +218,6 @@ func BenchmarkBuild65536(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		build(slice, maxPriority)
+		build(slice)
 	}
 }

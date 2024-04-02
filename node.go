@@ -185,22 +185,28 @@ func (n *node[T]) get(pivot T) (ret T, ok bool) {
 	panic("bad Compare result")
 }
 
-func build[T ordered[T]](slice []T, maxPriority Priority) *node[T] {
+func build[T ordered[T]](slice []T) *node[T] {
 	if len(slice) == 0 {
 		return nil
 	}
-	return buildSlow(slice, maxPriority)
+	return buildSlow(slice)
 }
 
-func buildSlow[T ordered[T]](slice []T, maxPriority Priority) *node[T] {
+func buildSlow[T ordered[T]](slice []T) *node[T] {
 	i := len(slice) / 2
 	left := slice[:i]
 	right := slice[i+1:]
-	priority := maxPriority - 1
-	return &node[T]{
+	ret := &node[T]{
 		value:    slice[i],
-		priority: priority,
-		left:     build(left, priority),
-		right:    build(right, priority),
+		priority: NewPriority(),
+		left:     build(left),
+		right:    build(right),
 	}
+	if ret.left != nil && ret.left.priority > ret.priority {
+		ret.priority, ret.left.priority = ret.left.priority, ret.priority
+	}
+	if ret.right != nil && ret.right.priority > ret.priority {
+		ret.priority, ret.right.priority = ret.right.priority, ret.priority
+	}
+	return ret
 }
