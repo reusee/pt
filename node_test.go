@@ -122,7 +122,7 @@ func BenchmarkSplit(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		n, _ = n.split(Int(i))
+		n, _ = n.split(Int(rand.N(b.N)))
 	}
 }
 
