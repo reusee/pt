@@ -199,3 +199,25 @@ func BenchmarkUpsert65536(b *testing.B) {
 		}
 	}
 }
+
+func TestBuild(t *testing.T) {
+	var slice []Int
+	for i := 0; i < 65536; i++ {
+		slice = append(slice, Int(i))
+	}
+	n := build(slice, maxPriority)
+	if n.length() != 65536 {
+		t.Fatal()
+	}
+}
+
+func BenchmarkBuild65536(b *testing.B) {
+	var slice []Int
+	for i := 0; i < 65536; i++ {
+		slice = append(slice, Int(i))
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		build(slice, maxPriority)
+	}
+}

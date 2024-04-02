@@ -3,6 +3,7 @@ package pt
 import (
 	"fmt"
 	"io"
+	"math/rand/v2"
 )
 
 type node[T ordered[T]] struct {
@@ -183,4 +184,20 @@ func (n *node[T]) get(pivot T) (ret T, ok bool) {
 		return n.right.get(pivot)
 	}
 	panic("bad Compare result")
+}
+
+func build[T ordered[T]](slice []T, maxPriority Priority) *node[T] {
+	if len(slice) == 0 {
+		return nil
+	}
+	i := len(slice) / 2
+	left := slice[:i]
+	right := slice[i+1:]
+	priority := rand.N(maxPriority)
+	return &node[T]{
+		value:    slice[i],
+		priority: priority,
+		left:     build(left, priority),
+		right:    build(right, priority),
+	}
 }
