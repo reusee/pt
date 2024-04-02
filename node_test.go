@@ -31,6 +31,14 @@ func TestNode(t *testing.T) {
 		if j != Int(i) {
 			t.Fatal()
 		}
+		// get
+		k, ok := n.get(j)
+		if !ok {
+			t.Fatal()
+		}
+		if k != j {
+			t.Fatal()
+		}
 	}
 
 	// height
@@ -166,5 +174,19 @@ func BenchmarkUnion(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		n1.union(n2)
+	}
+}
+
+func BenchmarkGet(b *testing.B) {
+	var n *node[Int]
+	for i := 0; i < b.N; i++ {
+		n, _ = n.upsert(Int(i), NewPriority())
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, ok := n.get(Int(i))
+		if !ok {
+			b.Fatal()
+		}
 	}
 }

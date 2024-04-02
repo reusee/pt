@@ -169,3 +169,18 @@ func (n *node[T]) length() int {
 	}
 	return 1 + n.left.length() + n.right.length()
 }
+
+func (n *node[T]) get(pivot T) (ret T, ok bool) {
+	if n == nil {
+		return
+	}
+	switch pivot.Compare(n.value) {
+	case 0:
+		return n.value, true
+	case -1:
+		return n.left.get(pivot)
+	case 1:
+		return n.right.get(pivot)
+	}
+	panic("bad Compare result")
+}
