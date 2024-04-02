@@ -145,6 +145,24 @@ func (n *node[T]) split(value T) (ret *node[T], existed bool) {
 	return n.upsert(value, maxPriority)
 }
 
+func (n *node[T]) union(n2 *node[T]) *node[T] {
+	if n2 == nil {
+		return n
+	}
+	if n == nil {
+		return n2
+	}
+	if n2.priority > n.priority {
+		return n2.union(n)
+	}
+	n2Split, _ := n2.split(n.value)
+	return join(
+		n,
+		n.left.union(n2Split.left),
+		n.right.union(n2Split.right),
+	)
+}
+
 func (n *node[T]) length() int {
 	if n == nil {
 		return 0

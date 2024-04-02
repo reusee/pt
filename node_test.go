@@ -57,6 +57,26 @@ func TestNode(t *testing.T) {
 		}
 	}
 
+	// union
+	n = n.union(n)
+	if n.length() != num {
+		t.Fatal()
+	}
+	for i := 0; i < num; i++ {
+		split, _ := n.split(Int(i))
+		u := n.union(split)
+		if u.length() != num {
+			t.Fatal()
+		}
+		u = n.union(&node[Int]{
+			value:    Int(i),
+			priority: NewPriority(),
+		})
+		if u.length() != num {
+			t.Fatal()
+		}
+	}
+
 	// remove
 	for _, i := range rand.Perm(num) {
 		removed := false
