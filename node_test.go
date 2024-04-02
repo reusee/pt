@@ -125,3 +125,13 @@ func BenchmarkSplit(b *testing.B) {
 		n, _ = n.split(Int(i))
 	}
 }
+
+func BenchmarkUpsertPriority(b *testing.B) {
+	var n *node[Int]
+	n, _ = n.upsert(1, -1) // will be the left node
+	n, _ = n.upsert(3, -1) // will be the right node
+	for i := 0; i < b.N; i++ {
+		// upsert node priority with non-empty left and right nodes
+		n, _ = n.upsert(2, int64(i))
+	}
+}

@@ -16,6 +16,7 @@ func (n *node[T]) upsert(value T, priority Priority) (ret *node[T], existed bool
 	if n != nil {
 		return n.upsertSlow(value, priority)
 	}
+	// new node
 	return &node[T]{
 		value:    value,
 		priority: priority,
@@ -48,9 +49,13 @@ func (n *node[T]) upsertSlow(value T, priority Priority) (ret *node[T], existed 
 			return n, true
 		}
 		return join(
+			// new node
 			&node[T]{
 				value:    n.value,
 				priority: priority,
+				// setting these fields is not required for correctness, but will save a node allocation in join
+				left:  n.left,
+				right: n.right,
 			},
 			n.left,
 			n.right,
@@ -68,11 +73,12 @@ func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
 
 	if (left == nil || middle.priority >= left.priority) &&
 		(right == nil || middle.priority >= right.priority) {
+		// no rotation
 		if middle.left == left && middle.right == right {
 			// no change
 			return middle
 		}
-		// no rotation
+		// new node
 		return &node[T]{
 			value:    middle.value,
 			priority: middle.priority,
