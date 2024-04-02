@@ -155,3 +155,16 @@ func BenchmarkUpsertPriority(b *testing.B) {
 		n, _ = n.upsert(2, int64(i))
 	}
 }
+
+func BenchmarkUnion(b *testing.B) {
+	const l = 1024
+	var n1, n2 *node[Int]
+	for i := 0; i < l; i++ {
+		n1, _ = n1.upsert(Int(i), NewPriority())
+		n2, _ = n2.upsert(Int(i), NewPriority())
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		n1.union(n2)
+	}
+}
