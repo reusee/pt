@@ -7,12 +7,13 @@ import (
 )
 
 func TestNode(t *testing.T) {
+	ps := NewPrioritySource()
 	const num = 4096
 	var n *node[Int]
 
 	// upsert
 	for _, i := range rand.Perm(num) {
-		priority := NewPriority()
+		priority := ps()
 		existed := false
 		n, existed = n.upsert(Int(i), priority)
 		if existed {
@@ -78,7 +79,7 @@ func TestNode(t *testing.T) {
 		}
 		u = n.union(&node[Int]{
 			value:    Int(i),
-			priority: NewPriority(),
+			priority: ps(),
 		})
 		if u.length() != num {
 			t.Fatal()
@@ -99,11 +100,12 @@ func TestNode(t *testing.T) {
 }
 
 func TestUpsertPersistence(t *testing.T) {
+	ps := NewPrioritySource()
 	const num = 1024
 	var nodes []*node[Int]
 	var n *node[Int]
 	for i := Int(0); i < num; i++ {
-		n, _ = n.upsert(i, NewPriority())
+		n, _ = n.upsert(i, ps())
 		nodes = append(nodes, n)
 	}
 	for i, n := range nodes {
@@ -126,16 +128,18 @@ func TestUpsertPersistence(t *testing.T) {
 }
 
 func BenchmarkUpsert(b *testing.B) {
+	ps := NewPrioritySource()
 	var n *node[Int]
 	for i := 0; i < b.N; i++ {
-		n, _ = n.upsert(Int(i), NewPriority())
+		n, _ = n.upsert(Int(i), ps())
 	}
 }
 
 func BenchmarkDelete(b *testing.B) {
+	ps := NewPrioritySource()
 	var n *node[Int]
 	for i := 0; i < b.N; i++ {
-		n, _ = n.upsert(Int(i), NewPriority())
+		n, _ = n.upsert(Int(i), ps())
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -144,9 +148,10 @@ func BenchmarkDelete(b *testing.B) {
 }
 
 func BenchmarkSplit(b *testing.B) {
+	ps := NewPrioritySource()
 	var n *node[Int]
 	for i := 0; i < b.N; i++ {
-		n, _ = n.upsert(Int(i), NewPriority())
+		n, _ = n.upsert(Int(i), ps())
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -165,11 +170,12 @@ func BenchmarkUpsertPriority(b *testing.B) {
 }
 
 func BenchmarkUnion(b *testing.B) {
+	ps := NewPrioritySource()
 	const l = 1024
 	var n1, n2 *node[Int]
 	for i := 0; i < l; i++ {
-		n1, _ = n1.upsert(Int(i), NewPriority())
-		n2, _ = n2.upsert(Int(i), NewPriority())
+		n1, _ = n1.upsert(Int(i), ps())
+		n2, _ = n2.upsert(Int(i), ps())
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -178,9 +184,10 @@ func BenchmarkUnion(b *testing.B) {
 }
 
 func BenchmarkGet(b *testing.B) {
+	ps := NewPrioritySource()
 	var n *node[Int]
 	for i := 0; i < b.N; i++ {
-		n, _ = n.upsert(Int(i), NewPriority())
+		n, _ = n.upsert(Int(i), ps())
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -192,20 +199,22 @@ func BenchmarkGet(b *testing.B) {
 }
 
 func BenchmarkUpsert65536(b *testing.B) {
+	ps := NewPrioritySource()
 	for i := 0; i < b.N; i++ {
 		var n *node[Int]
 		for k := range 65536 {
-			n, _ = n.upsert(Int(k), NewPriority())
+			n, _ = n.upsert(Int(k), ps())
 		}
 	}
 }
 
 func TestBuild(t *testing.T) {
+	ps := NewPrioritySource()
 	var slice []Int
 	for i := 0; i < 65536; i++ {
 		slice = append(slice, Int(i))
 	}
-	n := build(slice)
+	n := build(ps, slice)
 	if n.length() != 65536 {
 		t.Fatal()
 	}
@@ -213,12 +222,13 @@ func TestBuild(t *testing.T) {
 }
 
 func BenchmarkBuild65536(b *testing.B) {
+	ps := NewPrioritySource()
 	var slice []Int
 	for i := 0; i < 65536; i++ {
 		slice = append(slice, Int(i))
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		build(slice)
+		build(ps, slice)
 	}
 }

@@ -185,22 +185,22 @@ func (n *node[T]) get(pivot T) (ret T, ok bool) {
 	panic("bad Compare result")
 }
 
-func build[T ordered[T]](slice []T) *node[T] {
+func build[T ordered[T]](source PrioritySource, slice []T) *node[T] {
 	if len(slice) == 0 {
 		return nil
 	}
-	return buildSlow(slice)
+	return buildSlow(source, slice)
 }
 
-func buildSlow[T ordered[T]](slice []T) *node[T] {
+func buildSlow[T ordered[T]](source PrioritySource, slice []T) *node[T] {
 	i := len(slice) / 2
 	left := slice[:i]
 	right := slice[i+1:]
 	ret := &node[T]{
 		value:    slice[i],
-		priority: NewPriority(),
-		left:     build(left),
-		right:    build(right),
+		priority: source(),
+		left:     build(source, left),
+		right:    build(source, right),
 	}
 	heapify(ret)
 	return ret
