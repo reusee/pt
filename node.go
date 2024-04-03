@@ -87,7 +87,7 @@ func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
 		}
 	}
 
-	if left != nil && left.priority > middle.priority && (right == nil || left.priority > right.priority) {
+	if left != nil && left.priority > middle.priority && (right == nil || left.priority >= right.priority) {
 		// rotate right
 		return &node[T]{
 			value:    left.value,
@@ -101,7 +101,7 @@ func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
 		}
 	}
 
-	if right != nil && right.priority > middle.priority && (left == nil || right.priority > left.priority) {
+	if right != nil && right.priority > middle.priority && (left == nil || right.priority >= left.priority) {
 		// rotate left
 		return &node[T]{
 			value:    right.value,
