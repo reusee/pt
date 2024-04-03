@@ -30,11 +30,11 @@ func TestNode(t *testing.T) {
 	for _, i := range rand.Perm(num) {
 		priority := ps()
 		existed := false
-		n, existed = n.upsert(Int(i), priority)
+		n, existed = n.upsert(Int(i), priority, false)
 		if existed {
 			t.Fatal()
 		}
-		n, existed = n.upsert(Int(i), priority)
+		n, existed = n.upsert(Int(i), priority, false)
 		if !existed {
 			t.Fatal()
 		}
@@ -71,7 +71,7 @@ func TestNode(t *testing.T) {
 
 	// split
 	for i := 0; i < num; i++ {
-		split, existed := n.split(Int(i))
+		split, existed := n.split(Int(i), false)
 		if !existed {
 			t.Fatal()
 		}
@@ -87,7 +87,7 @@ func TestNode(t *testing.T) {
 	}
 
 	// union
-	n = n.union(n)
+	n = n.union(n, false)
 	if n.length() != num {
 		t.Fatal()
 	}
@@ -95,7 +95,7 @@ func TestNode(t *testing.T) {
 		u := n.union(&node[Int]{
 			value:    Int(i),
 			priority: ps(),
-		})
+		}, false)
 		if u.length() != num {
 			t.Fatal()
 		}
@@ -104,7 +104,7 @@ func TestNode(t *testing.T) {
 	// remove
 	for _, i := range rand.Perm(num) {
 		removed := false
-		n, removed = n.remove(Int(i))
+		n, removed = n.remove(Int(i), false)
 		if !removed {
 			t.Fatal()
 		}
@@ -120,7 +120,7 @@ func TestUpsertPersistence(t *testing.T) {
 	var nodes []*node[Int]
 	var n *node[Int]
 	for i := Int(0); i < num; i++ {
-		n, _ = n.upsert(i, ps())
+		n, _ = n.upsert(i, ps(), false)
 		nodes = append(nodes, n)
 	}
 	for i, n := range nodes {
@@ -159,7 +159,7 @@ func TestDump(t *testing.T) {
 	ps := NewPrioritySource()
 	var n *node[Int]
 	for i := 0; i < 8; i++ {
-		n, _ = n.upsert(Int(i), ps())
+		n, _ = n.upsert(Int(i), ps(), false)
 	}
 	n.dump(io.Discard, 0)
 }

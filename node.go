@@ -12,9 +12,9 @@ type node[T ordered[T]] struct {
 	right    *node[T]
 }
 
-func (n *node[T]) upsert(value T, priority Priority) (ret *node[T], existed bool) {
+func (n *node[T]) upsert(value T, priority Priority, mutate bool) (ret *node[T], existed bool) {
 	if n != nil {
-		return n.upsertSlow(value, priority)
+		return n.upsertSlow(value, priority, mutate)
 	}
 	// new node
 	return &node[T]{
@@ -23,23 +23,25 @@ func (n *node[T]) upsert(value T, priority Priority) (ret *node[T], existed bool
 	}, false
 }
 
-func (n *node[T]) upsertSlow(value T, priority Priority) (ret *node[T], existed bool) {
+func (n *node[T]) upsertSlow(value T, priority Priority, mutate bool) (ret *node[T], existed bool) {
 	switch value.Compare(n.value) {
 
 	case -1:
-		left, existed := n.left.upsert(value, priority)
+		left, existed := n.left.upsert(value, priority, mutate)
 		return join(
 			n,
 			left,
 			n.right,
+			mutate,
 		), existed
 
 	case 1:
-		right, existed := n.right.upsert(value, priority)
+		right, existed := n.right.upsert(value, priority, mutate)
 		return join(
 			n,
 			n.left,
 			right,
+			mutate,
 		), existed
 
 	case 0:
@@ -48,24 +50,35 @@ func (n *node[T]) upsertSlow(value T, priority Priority) (ret *node[T], existed 
 			// same
 			return n, true
 		}
-		return join(
-			// new node
-			&node[T]{
-				value:    n.value,
-				priority: priority,
-				// setting these fields is not required for correctness, but will save a node allocation in join
-				left:  n.left,
-				right: n.right,
-			},
-			n.left,
-			n.right,
-		), true
+		if mutate {
+			n.priority = priority
+			return join(
+				n,
+				n.left,
+				n.right,
+				true,
+			), true
+		} else {
+			return join(
+				// new node
+				&node[T]{
+					value:    n.value,
+					priority: priority,
+					// setting these fields is not required for correctness, but will save a node allocation in join
+					left:  n.left,
+					right: n.right,
+				},
+				n.left,
+				n.right,
+				false,
+			), true
+		}
 
 	}
 	panic("bad Compare result") // NOCOVER
 }
 
-func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
+func join[T ordered[T]](middle, left, right *node[T], mutate bool) *node[T] {
 	if middle.priority == MinPriority && left == nil && right == nil {
 		// leaf node to be deleted
 		return nil
@@ -78,40 +91,73 @@ func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
 			// no change
 			return middle
 		}
-		// new node
-		return &node[T]{
-			value:    middle.value,
-			priority: middle.priority,
-			left:     left,
-			right:    right,
+		if mutate {
+			// use middle
+			middle.left = left
+			middle.right = right
+			return middle
+		} else {
+			// new node
+			return &node[T]{
+				value:    middle.value,
+				priority: middle.priority,
+				left:     left,
+				right:    right,
+			}
 		}
 	}
 
 	if left != nil && left.priority > middle.priority && (right == nil || left.priority >= right.priority) {
 		// rotate right
-		return &node[T]{
-			value:    left.value,
-			priority: left.priority,
-			left:     left.left,
-			right: join(
+		if mutate {
+			// use left
+			left.right = join(
 				middle,
 				left.right,
 				right,
-			),
+				true,
+			)
+			return left
+		} else {
+			// new node
+			return &node[T]{
+				value:    left.value,
+				priority: left.priority,
+				left:     left.left,
+				right: join(
+					middle,
+					left.right,
+					right,
+					false,
+				),
+			}
 		}
 	}
 
 	if right != nil && right.priority > middle.priority && (left == nil || right.priority >= left.priority) {
 		// rotate left
-		return &node[T]{
-			value:    right.value,
-			priority: right.priority,
-			left: join(
+		if mutate {
+			// use right
+			right.left = join(
 				middle,
 				left,
 				right.left,
-			),
-			right: right.right,
+				true,
+			)
+			return right
+		} else {
+			// new node
+			return &node[T]{
+				value:    right.value,
+				priority: right.priority,
+				left: join(
+					middle,
+					left,
+					right.left,
+					false,
+				),
+				right: right.right,
+			}
 		}
 	}
 
@@ -137,15 +183,15 @@ func (n *node[T]) dump(out io.Writer, level int) {
 	n.right.dump(out, level+1)
 }
 
-func (n *node[T]) remove(value T) (ret *node[T], removed bool) {
-	return n.upsert(value, MinPriority)
+func (n *node[T]) remove(value T, mutate bool) (ret *node[T], removed bool) {
+	return n.upsert(value, MinPriority, mutate)
 }
 
-func (n *node[T]) split(value T) (ret *node[T], existed bool) {
-	return n.upsert(value, MaxPriority)
+func (n *node[T]) split(value T, mutate bool) (ret *node[T], existed bool) {
+	return n.upsert(value, MaxPriority, mutate)
 }
 
-func (n *node[T]) union(n2 *node[T]) *node[T] {
+func (n *node[T]) union(n2 *node[T], mutate bool) *node[T] {
 	if n2 == nil {
 		return n
 	}
@@ -153,13 +199,14 @@ func (n *node[T]) union(n2 *node[T]) *node[T] {
 		return n2
 	}
 	if n2.priority > n.priority {
-		return n2.union(n)
+		return n2.union(n, mutate)
 	}
-	n2Split, _ := n2.split(n.value)
+	n2Split, _ := n2.split(n.value, mutate)
 	return join(
 		n,
-		n.left.union(n2Split.left),
-		n.right.union(n2Split.right),
+		n.left.union(n2Split.left, mutate),
+		n.right.union(n2Split.right, mutate),
+		mutate,
 	)
 }
 
