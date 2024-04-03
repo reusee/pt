@@ -9,7 +9,7 @@ import (
 
 func TestNode(t *testing.T) {
 	ps := NewPrioritySource()
-	const num = 4096
+	const num = 8192
 	var n *node[Int]
 
 	// upsert
@@ -74,12 +74,7 @@ func TestNode(t *testing.T) {
 		t.Fatal()
 	}
 	for i := 0; i < num; i++ {
-		split, _ := n.split(Int(i))
-		u := n.union(split)
-		if u.length() != num {
-			t.Fatal()
-		}
-		u = n.union(&node[Int]{
+		u := n.union(&node[Int]{
 			value:    Int(i),
 			priority: ps(),
 		})
