@@ -171,3 +171,21 @@ func TestGetFromNil(t *testing.T) {
 		t.Fatal()
 	}
 }
+
+func TestMutateUpsert(t *testing.T) {
+	ps := NewPrioritySource()
+	var n *node[Int]
+	for i := 0; i < 4096; i++ {
+		n, _ = n.upsert(Int(i), ps(), true)
+		if n.length() != i+1 {
+			t.Fatal()
+		}
+		j, ok := n.get(Int(i))
+		if !ok {
+			t.Fatal()
+		}
+		if j != Int(i) {
+			t.Fatal()
+		}
+	}
+}

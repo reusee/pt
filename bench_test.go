@@ -97,3 +97,23 @@ func BenchmarkBuild65536(b *testing.B) {
 		build(ps, slice)
 	}
 }
+
+func BenchmarkMutateUpsert65536(b *testing.B) {
+	ps := NewPrioritySource()
+	var n *node[Int]
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for i := range 65536 {
+			n, _ = n.upsert(Int(i), ps(), true)
+		}
+	}
+}
+
+func BenchmarkMutateUpsert(b *testing.B) {
+	ps := NewPrioritySource()
+	var n *node[Int]
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		n, _ = n.upsert(Int(i), ps(), true)
+	}
+}
