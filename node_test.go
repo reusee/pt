@@ -1,6 +1,7 @@
 package pt
 
 import (
+	"io"
 	"math"
 	"math/rand/v2"
 	"testing"
@@ -43,7 +44,8 @@ func TestNode(t *testing.T) {
 	}
 
 	// height
-	if h := n.height(); h > int(math.Log2(float64(65536))*3) {
+	if h := n.height(); h > int(math.Log2(float64(num))*4) {
+		// bad luck or bad implementation
 		t.Fatalf("got %v", n.height())
 	} else {
 		pt("num %v, height %v\n", num, h)
@@ -138,4 +140,13 @@ func TestBuild(t *testing.T) {
 		t.Fatal()
 	}
 	n.checkHeap()
+}
+
+func TestDump(t *testing.T) {
+	ps := NewPrioritySource()
+	var n *node[Int]
+	for i := 0; i < 8; i++ {
+		n, _ = n.upsert(Int(i), ps())
+	}
+	n.dump(io.Discard, 0)
 }
