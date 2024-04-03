@@ -98,6 +98,21 @@ func BenchmarkBuild65536(b *testing.B) {
 	}
 }
 
+func BenchmarkBuildUnion65536(b *testing.B) {
+	ps := NewPrioritySource()
+	var slice []Int
+	for i := 0; i < 65536; i++ {
+		slice = append(slice, Int(i))
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		build(ps, slice[:len(slice)/2]).union(
+			build(ps, slice[len(slice)/2:]),
+			false,
+		)
+	}
+}
+
 func BenchmarkMutateUpsert65536(b *testing.B) {
 	ps := NewPrioritySource()
 	var n *node[Int]
