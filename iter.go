@@ -25,10 +25,6 @@ func (i *Iter[T]) Close() {
 	putIter(i)
 }
 
-func (t *Treap[T]) NewIter() *Iter[T] {
-	return t.root.newIter()
-}
-
 func (n *node[T]) newIter() *Iter[T] {
 	iter := getIter[T]()
 	iter.current = n

@@ -62,7 +62,7 @@ func (n *node[T]) upsertSlow(value T, priority Priority) (ret *node[T], existed 
 		), true
 
 	}
-	panic("bad Compare result")
+	panic("bad Compare result") // NOCOVER
 }
 
 func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
@@ -115,7 +115,7 @@ func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
 		}
 	}
 
-	panic("impossible")
+	panic("impossible") // NOCOVER
 }
 
 func (n *node[T]) height() int {
@@ -182,7 +182,7 @@ func (n *node[T]) get(pivot T) (ret T, ok bool) {
 	case 1:
 		return n.right.get(pivot)
 	}
-	panic("bad Compare result")
+	panic("bad Compare result") // NOCOVER
 }
 
 func build[T ordered[T]](source PrioritySource, slice []T) *node[T] {
@@ -218,18 +218,4 @@ func heapify[T ordered[T]](n *node[T]) {
 		max.priority, n.priority = n.priority, max.priority
 		heapify(max)
 	}
-}
-
-func (n *node[T]) checkHeap() {
-	if n == nil {
-		return
-	}
-	if n.left != nil && n.left.priority > n.priority {
-		panic("bad heap")
-	}
-	if n.right != nil && n.right.priority > n.priority {
-		panic("bad heap")
-	}
-	n.left.checkHeap()
-	n.right.checkHeap()
 }

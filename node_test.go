@@ -7,6 +7,20 @@ import (
 	"testing"
 )
 
+func (n *node[T]) checkHeap() {
+	if n == nil {
+		return
+	}
+	if n.left != nil && n.left.priority > n.priority {
+		panic("bad heap")
+	}
+	if n.right != nil && n.right.priority > n.priority {
+		panic("bad heap")
+	}
+	n.left.checkHeap()
+	n.right.checkHeap()
+}
+
 func TestNode(t *testing.T) {
 	ps := NewPrioritySource()
 	const num = 8192
@@ -18,6 +32,10 @@ func TestNode(t *testing.T) {
 		existed := false
 		n, existed = n.upsert(Int(i), priority)
 		if existed {
+			t.Fatal()
+		}
+		n, existed = n.upsert(Int(i), priority)
+		if !existed {
 			t.Fatal()
 		}
 	}
@@ -144,4 +162,12 @@ func TestDump(t *testing.T) {
 		n, _ = n.upsert(Int(i), ps())
 	}
 	n.dump(io.Discard, 0)
+}
+
+func TestGetFromNil(t *testing.T) {
+	var n *node[Int]
+	_, ok := n.get(42)
+	if ok {
+		t.Fatal()
+	}
 }
