@@ -66,7 +66,7 @@ func (n *node[T]) upsertSlow(value T, priority Priority) (ret *node[T], existed 
 }
 
 func join[T ordered[T]](middle, left, right *node[T]) *node[T] {
-	if middle.priority == minPriority && left == nil && right == nil {
+	if middle.priority == MinPriority && left == nil && right == nil {
 		// leaf node to be deleted
 		return nil
 	}
@@ -138,11 +138,11 @@ func (n *node[T]) dump(out io.Writer, level int) {
 }
 
 func (n *node[T]) remove(value T) (ret *node[T], removed bool) {
-	return n.upsert(value, minPriority)
+	return n.upsert(value, MinPriority)
 }
 
 func (n *node[T]) split(value T) (ret *node[T], existed bool) {
-	return n.upsert(value, maxPriority)
+	return n.upsert(value, MaxPriority)
 }
 
 func (n *node[T]) union(n2 *node[T]) *node[T] {

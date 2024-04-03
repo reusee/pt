@@ -8,8 +8,8 @@ import (
 type Priority = int64
 
 const (
-	minPriority = math.MinInt64
-	maxPriority = math.MaxInt64
+	MinPriority = math.MinInt64
+	MaxPriority = math.MaxInt64
 )
 
 func NewPriority() Priority {
