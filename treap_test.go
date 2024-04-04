@@ -21,7 +21,7 @@ func (n *Treap[T]) checkHeap() {
 	n.right.checkHeap()
 }
 
-func TestNode(t *testing.T) {
+func TestTreap(t *testing.T) {
 	ps := NewPrioritySource()
 	const num = 8192
 	var n *Treap[Int]
@@ -117,13 +117,13 @@ func TestNode(t *testing.T) {
 func TestUpsertPersistence(t *testing.T) {
 	ps := NewPrioritySource()
 	const num = 1024
-	var nodes []*Treap[Int]
+	var treaps []*Treap[Int]
 	var n *Treap[Int]
 	for i := Int(0); i < num; i++ {
 		n, _ = n.Upsert(i, ps(), false)
-		nodes = append(nodes, n)
+		treaps = append(treaps, n)
 	}
-	for i, n := range nodes {
+	for i, n := range treaps {
 		iter := n.newIter()
 		for expected := Int(0); expected < Int(i+1); expected++ {
 			got, ok := iter.Next()

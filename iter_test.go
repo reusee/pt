@@ -7,7 +7,7 @@ import (
 )
 
 func TestIter(t *testing.T) {
-	iter := testNode.newIter()
+	iter := testTreap.newIter()
 	defer iter.Close()
 
 	out := new(strings.Builder)
@@ -24,7 +24,7 @@ func TestIter(t *testing.T) {
 	}
 }
 
-var testNode = &Treap[Int]{
+var testTreap = &Treap[Int]{
 	left: &Treap[Int]{
 		left: &Treap[Int]{
 			value: 1,
@@ -45,7 +45,7 @@ var testNode = &Treap[Int]{
 
 func BenchmarkIter(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		iter := testNode.newIter()
+		iter := testTreap.newIter()
 		for {
 			_, ok := iter.Next()
 			if !ok {
@@ -59,7 +59,7 @@ func BenchmarkIter(b *testing.B) {
 func BenchmarkParallelIter(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			iter := testNode.newIter()
+			iter := testTreap.newIter()
 			for {
 				_, ok := iter.Next()
 				if !ok {
