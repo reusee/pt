@@ -41,7 +41,7 @@ func TestTreap(t *testing.T) {
 	}
 
 	// iter
-	iter := n.newIter()
+	iter := n.NewIter()
 	defer iter.Close()
 	for i := 0; i < num; i++ {
 		j, ok := iter.Next()
@@ -124,7 +124,7 @@ func TestUpsertPersistence(t *testing.T) {
 		treaps = append(treaps, n)
 	}
 	for i, n := range treaps {
-		iter := n.newIter()
+		iter := n.NewIter()
 		for expected := Int(0); expected < Int(i+1); expected++ {
 			got, ok := iter.Next()
 			if !ok {
