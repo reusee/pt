@@ -12,6 +12,10 @@ type node[T ordered[T]] struct {
 	right    *node[T]
 }
 
+type ordered[T any] interface {
+	Compare(T) int
+}
+
 func (n *node[T]) upsert(value T, priority Priority, mutate bool) (ret *node[T], existed bool) {
 	if n != nil {
 		return n.upsertSlow(value, priority, mutate)
