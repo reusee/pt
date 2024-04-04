@@ -1,8 +1,8 @@
 package pt
 
-type Iter[T ordered[T]] struct {
-	current *node[T]
-	stack   []*node[T]
+type Iter[T Ordered[T]] struct {
+	current *Treap[T]
+	stack   []*Treap[T]
 }
 
 func (i *Iter[T]) Next() (ret T, ok bool) {
@@ -25,7 +25,7 @@ func (i *Iter[T]) Close() {
 	putIter(i)
 }
 
-func (n *node[T]) newIter() *Iter[T] {
+func (n *Treap[T]) newIter() *Iter[T] {
 	iter := getIter[T]()
 	iter.current = n
 	return iter

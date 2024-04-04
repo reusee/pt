@@ -5,33 +5,33 @@ import (
 	"io"
 )
 
-type node[T ordered[T]] struct {
+type Treap[T Ordered[T]] struct {
 	value    T
 	priority Priority
-	left     *node[T]
-	right    *node[T]
+	left     *Treap[T]
+	right    *Treap[T]
 }
 
-type ordered[T any] interface {
+type Ordered[T any] interface {
 	Compare(T) int
 }
 
-func (n *node[T]) upsert(value T, priority Priority, mutate bool) (ret *node[T], existed bool) {
+func (n *Treap[T]) Upsert(value T, priority Priority, mutate bool) (ret *Treap[T], existed bool) {
 	if n != nil {
 		return n.upsertSlow(value, priority, mutate)
 	}
 	// new node
-	return &node[T]{
+	return &Treap[T]{
 		value:    value,
 		priority: priority,
 	}, false
 }
 
-func (n *node[T]) upsertSlow(value T, priority Priority, mutate bool) (ret *node[T], existed bool) {
+func (n *Treap[T]) upsertSlow(value T, priority Priority, mutate bool) (ret *Treap[T], existed bool) {
 	switch value.Compare(n.value) {
 
 	case -1:
-		left, existed := n.left.upsert(value, priority, mutate)
+		left, existed := n.left.Upsert(value, priority, mutate)
 		return join(
 			n,
 			left,
@@ -40,7 +40,7 @@ func (n *node[T]) upsertSlow(value T, priority Priority, mutate bool) (ret *node
 		), existed
 
 	case 1:
-		right, existed := n.right.upsert(value, priority, mutate)
+		right, existed := n.right.Upsert(value, priority, mutate)
 		return join(
 			n,
 			n.left,
@@ -65,7 +65,7 @@ func (n *node[T]) upsertSlow(value T, priority Priority, mutate bool) (ret *node
 		} else {
 			return join(
 				// new node
-				&node[T]{
+				&Treap[T]{
 					value:    n.value,
 					priority: priority,
 					// setting these fields is not required for correctness, but will save a node allocation in join
@@ -82,7 +82,7 @@ func (n *node[T]) upsertSlow(value T, priority Priority, mutate bool) (ret *node
 	panic("bad Compare result") // NOCOVER
 }
 
-func join[T ordered[T]](middle, left, right *node[T], mutate bool) *node[T] {
+func join[T Ordered[T]](middle, left, right *Treap[T], mutate bool) *Treap[T] {
 	if middle.priority == MinPriority && left == nil && right == nil {
 		// leaf node to be deleted
 		return nil
@@ -102,7 +102,7 @@ func join[T ordered[T]](middle, left, right *node[T], mutate bool) *node[T] {
 			return middle
 		} else {
 			// new node
-			return &node[T]{
+			return &Treap[T]{
 				value:    middle.value,
 				priority: middle.priority,
 				left:     left,
@@ -124,7 +124,7 @@ func join[T ordered[T]](middle, left, right *node[T], mutate bool) *node[T] {
 			return left
 		} else {
 			// new node
-			return &node[T]{
+			return &Treap[T]{
 				value:    left.value,
 				priority: left.priority,
 				left:     left.left,
@@ -151,7 +151,7 @@ func join[T ordered[T]](middle, left, right *node[T], mutate bool) *node[T] {
 			return right
 		} else {
 			// new node
-			return &node[T]{
+			return &Treap[T]{
 				value:    right.value,
 				priority: right.priority,
 				left: join(
@@ -168,14 +168,14 @@ func join[T ordered[T]](middle, left, right *node[T], mutate bool) *node[T] {
 	panic("impossible") // NOCOVER
 }
 
-func (n *node[T]) height() int {
+func (n *Treap[T]) Height() int {
 	if n == nil {
 		return 0
 	}
-	return 1 + max(n.left.height(), n.right.height())
+	return 1 + max(n.left.Height(), n.right.Height())
 }
 
-func (n *node[T]) dump(out io.Writer, level int) {
+func (n *Treap[T]) Dump(out io.Writer, level int) {
 	if n == nil {
 		return
 	}
@@ -183,19 +183,19 @@ func (n *node[T]) dump(out io.Writer, level int) {
 		out.Write([]byte("\t"))
 	}
 	fmt.Fprintf(out, "value %v, priority %v\n", n.value, n.priority)
-	n.left.dump(out, level+1)
-	n.right.dump(out, level+1)
+	n.left.Dump(out, level+1)
+	n.right.Dump(out, level+1)
 }
 
-func (n *node[T]) remove(value T, mutate bool) (ret *node[T], removed bool) {
-	return n.upsert(value, MinPriority, mutate)
+func (n *Treap[T]) Remove(value T, mutate bool) (ret *Treap[T], removed bool) {
+	return n.Upsert(value, MinPriority, mutate)
 }
 
-func (n *node[T]) split(value T, mutate bool) (ret *node[T], existed bool) {
-	return n.upsert(value, MaxPriority, mutate)
+func (n *Treap[T]) Split(value T, mutate bool) (ret *Treap[T], existed bool) {
+	return n.Upsert(value, MaxPriority, mutate)
 }
 
-func (n *node[T]) union(n2 *node[T], mutate bool) *node[T] {
+func (n *Treap[T]) Union(n2 *Treap[T], mutate bool) *Treap[T] {
 	if n2 == nil {
 		return n
 	}
@@ -203,25 +203,25 @@ func (n *node[T]) union(n2 *node[T], mutate bool) *node[T] {
 		return n2
 	}
 	if n2.priority > n.priority {
-		return n2.union(n, mutate)
+		return n2.Union(n, mutate)
 	}
-	n2Split, _ := n2.split(n.value, mutate)
+	n2Split, _ := n2.Split(n.value, mutate)
 	return join(
 		n,
-		n.left.union(n2Split.left, mutate),
-		n.right.union(n2Split.right, mutate),
+		n.left.Union(n2Split.left, mutate),
+		n.right.Union(n2Split.right, mutate),
 		mutate,
 	)
 }
 
-func (n *node[T]) length() int {
+func (n *Treap[T]) Length() int {
 	if n == nil {
 		return 0
 	}
-	return 1 + n.left.length() + n.right.length()
+	return 1 + n.left.Length() + n.right.Length()
 }
 
-func (n *node[T]) get(pivot T) (ret T, ok bool) {
+func (n *Treap[T]) Get(pivot T) (ret T, ok bool) {
 	if n == nil {
 		return
 	}
@@ -229,35 +229,35 @@ func (n *node[T]) get(pivot T) (ret T, ok bool) {
 	case 0:
 		return n.value, true
 	case -1:
-		return n.left.get(pivot)
+		return n.left.Get(pivot)
 	case 1:
-		return n.right.get(pivot)
+		return n.right.Get(pivot)
 	}
 	panic("bad Compare result") // NOCOVER
 }
 
-func build[T ordered[T]](source PrioritySource, slice []T) *node[T] {
+func Build[T Ordered[T]](source PrioritySource, slice []T) *Treap[T] {
 	if len(slice) == 0 {
 		return nil
 	}
 	return buildSlow(source, slice)
 }
 
-func buildSlow[T ordered[T]](source PrioritySource, slice []T) *node[T] {
+func buildSlow[T Ordered[T]](source PrioritySource, slice []T) *Treap[T] {
 	i := len(slice) / 2
 	left := slice[:i]
 	right := slice[i+1:]
-	ret := &node[T]{
+	ret := &Treap[T]{
 		value:    slice[i],
 		priority: source(),
-		left:     build(source, left),
-		right:    build(source, right),
+		left:     Build(source, left),
+		right:    Build(source, right),
 	}
 	heapify(ret)
 	return ret
 }
 
-func heapify[T ordered[T]](n *node[T]) {
+func heapify[T Ordered[T]](n *Treap[T]) {
 	max := n
 	if n.left != nil && n.left.priority > max.priority {
 		max = n.left

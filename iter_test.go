@@ -24,18 +24,18 @@ func TestIter(t *testing.T) {
 	}
 }
 
-var testNode = &node[Int]{
-	left: &node[Int]{
-		left: &node[Int]{
+var testNode = &Treap[Int]{
+	left: &Treap[Int]{
+		left: &Treap[Int]{
 			value: 1,
 		},
-		right: &node[Int]{
+		right: &Treap[Int]{
 			value: 2,
 		},
 		value: 3,
 	},
-	right: &node[Int]{
-		right: &node[Int]{
+	right: &Treap[Int]{
+		right: &Treap[Int]{
 			value: 4,
 		},
 		value: 5,

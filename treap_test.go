@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func (n *node[T]) checkHeap() {
+func (n *Treap[T]) checkHeap() {
 	if n == nil {
 		return
 	}
@@ -24,17 +24,17 @@ func (n *node[T]) checkHeap() {
 func TestNode(t *testing.T) {
 	ps := NewPrioritySource()
 	const num = 8192
-	var n *node[Int]
+	var n *Treap[Int]
 
 	// upsert
 	for _, i := range rand.Perm(num) {
 		priority := ps()
 		existed := false
-		n, existed = n.upsert(Int(i), priority, false)
+		n, existed = n.Upsert(Int(i), priority, false)
 		if existed {
 			t.Fatal()
 		}
-		n, existed = n.upsert(Int(i), priority, false)
+		n, existed = n.Upsert(Int(i), priority, false)
 		if !existed {
 			t.Fatal()
 		}
@@ -52,7 +52,7 @@ func TestNode(t *testing.T) {
 			t.Fatal()
 		}
 		// get
-		k, ok := n.get(j)
+		k, ok := n.Get(j)
 		if !ok {
 			t.Fatal()
 		}
@@ -62,41 +62,41 @@ func TestNode(t *testing.T) {
 	}
 
 	// height
-	if h := n.height(); h > int(math.Log2(float64(num))*4) {
+	if h := n.Height(); h > int(math.Log2(float64(num))*4) {
 		// bad luck or bad implementation
-		t.Fatalf("got %v", n.height())
+		t.Fatalf("got %v", n.Height())
 	} else {
 		pt("num %v, height %v\n", num, h)
 	}
 
 	// split
 	for i := 0; i < num; i++ {
-		split, existed := n.split(Int(i), false)
+		split, existed := n.Split(Int(i), false)
 		if !existed {
 			t.Fatal()
 		}
-		if l := split.length(); l != num {
+		if l := split.Length(); l != num {
 			t.Fatalf("got %v, expected %v", l, num)
 		}
-		if l := split.left.length(); l != i {
+		if l := split.left.Length(); l != i {
 			t.Fatal()
 		}
-		if l := split.right.length(); l != num-i-1 {
+		if l := split.right.Length(); l != num-i-1 {
 			t.Fatalf("got %v, expected %v", l, num-i-1)
 		}
 	}
 
 	// union
-	n = n.union(n, false)
-	if n.length() != num {
+	n = n.Union(n, false)
+	if n.Length() != num {
 		t.Fatal()
 	}
 	for i := 0; i < num; i++ {
-		u := n.union(&node[Int]{
+		u := n.Union(&Treap[Int]{
 			value:    Int(i),
 			priority: ps(),
 		}, false)
-		if u.length() != num {
+		if u.Length() != num {
 			t.Fatal()
 		}
 	}
@@ -104,12 +104,12 @@ func TestNode(t *testing.T) {
 	// remove
 	for _, i := range rand.Perm(num) {
 		removed := false
-		n, removed = n.remove(Int(i), false)
+		n, removed = n.Remove(Int(i), false)
 		if !removed {
 			t.Fatal()
 		}
 	}
-	if n.height() != 0 {
+	if n.Height() != 0 {
 		t.Fatal()
 	}
 }
@@ -117,10 +117,10 @@ func TestNode(t *testing.T) {
 func TestUpsertPersistence(t *testing.T) {
 	ps := NewPrioritySource()
 	const num = 1024
-	var nodes []*node[Int]
-	var n *node[Int]
+	var nodes []*Treap[Int]
+	var n *Treap[Int]
 	for i := Int(0); i < num; i++ {
-		n, _ = n.upsert(i, ps(), false)
+		n, _ = n.Upsert(i, ps(), false)
 		nodes = append(nodes, n)
 	}
 	for i, n := range nodes {
@@ -148,8 +148,8 @@ func TestBuild(t *testing.T) {
 	for i := 0; i < 65536; i++ {
 		slice = append(slice, Int(i))
 	}
-	n := build(ps, slice)
-	if n.length() != 65536 {
+	n := Build(ps, slice)
+	if n.Length() != 65536 {
 		t.Fatal()
 	}
 	n.checkHeap()
@@ -157,16 +157,16 @@ func TestBuild(t *testing.T) {
 
 func TestDump(t *testing.T) {
 	ps := NewPrioritySource()
-	var n *node[Int]
+	var n *Treap[Int]
 	for i := 0; i < 8; i++ {
-		n, _ = n.upsert(Int(i), ps(), false)
+		n, _ = n.Upsert(Int(i), ps(), false)
 	}
-	n.dump(io.Discard, 0)
+	n.Dump(io.Discard, 0)
 }
 
 func TestGetFromNil(t *testing.T) {
-	var n *node[Int]
-	_, ok := n.get(42)
+	var n *Treap[Int]
+	_, ok := n.Get(42)
 	if ok {
 		t.Fatal()
 	}
@@ -174,13 +174,13 @@ func TestGetFromNil(t *testing.T) {
 
 func TestMutateUpsert(t *testing.T) {
 	ps := NewPrioritySource()
-	var n *node[Int]
+	var n *Treap[Int]
 	for i := 0; i < 4096; i++ {
-		n, _ = n.upsert(Int(i), ps(), true)
-		if n.length() != i+1 {
+		n, _ = n.Upsert(Int(i), ps(), true)
+		if n.Length() != i+1 {
 			t.Fatal()
 		}
-		j, ok := n.get(Int(i))
+		j, ok := n.Get(Int(i))
 		if !ok {
 			t.Fatal()
 		}
