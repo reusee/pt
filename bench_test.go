@@ -80,7 +80,7 @@ func BenchmarkUpsert65536(b *testing.B) {
 	ps := NewPrioritySource()
 	for i := 0; i < b.N; i++ {
 		var n *Treap[Int]
-		for k := range 65536 {
+		for k := 0; k < 65536; k++ {
 			n, _ = n.Upsert(Int(k), ps(), false)
 		}
 	}
@@ -118,7 +118,7 @@ func BenchmarkMutateUpsert65536(b *testing.B) {
 	var n *Treap[Int]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		for i := range 65536 {
+		for i := 0; i < 65536; i++ {
 			n, _ = n.Upsert(Int(i), ps(), true)
 		}
 	}
