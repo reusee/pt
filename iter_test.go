@@ -7,7 +7,7 @@ import (
 )
 
 func TestIter(t *testing.T) {
-	iter := testTreap.NewIter(nil)
+	iter := testTreap.NewIter()
 	defer iter.Close()
 
 	for i := 0; i < 8; i++ {
@@ -49,7 +49,7 @@ var testTreap = &Treap[Int]{
 
 func BenchmarkIter(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		iter := testTreap.NewIter(nil)
+		iter := testTreap.NewIter()
 		for {
 			_, ok := iter.Next()
 			if !ok {
@@ -63,7 +63,7 @@ func BenchmarkIter(b *testing.B) {
 func BenchmarkParallelIter(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			iter := testTreap.NewIter(nil)
+			iter := testTreap.NewIter()
 			for {
 				_, ok := iter.Next()
 				if !ok {
@@ -87,7 +87,7 @@ func TestSeek(t *testing.T) {
 	}
 	// seek
 	for i := 0; i < num; i++ {
-		iter := node.NewIter(nil)
+		iter := node.NewIter()
 
 		// seek
 		switch i % 2 {

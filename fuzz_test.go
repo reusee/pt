@@ -46,7 +46,7 @@ func FuzzTreap(f *testing.F) {
 			}
 
 			// iter
-			iter := node.NewIter(nil)
+			iter := node.NewIter()
 			// seek
 			value, existed := iter.Seek(Int(v))
 			if !existed {
@@ -65,7 +65,7 @@ func FuzzTreap(f *testing.F) {
 
 		// iter all
 		var iterResult []int
-		iter := node.NewIter(nil)
+		iter := node.NewIter()
 		for n, ok := iter.Next(); ok; n, ok = iter.Next() {
 			iterResult = append(iterResult, int(n))
 		}
