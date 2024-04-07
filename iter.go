@@ -70,8 +70,10 @@ func (i *Iter[T]) Close() {
 	putIter(i)
 }
 
-func (n *Treap[T]) NewIter() *Iter[T] {
-	iter := getIter[T]()
+func (n *Treap[T]) NewIter(iter *Iter[T]) *Iter[T] {
+	if iter == nil {
+		iter = getIter[T]()
+	}
 	iter.root = n
 	iter.current = n
 	return iter
