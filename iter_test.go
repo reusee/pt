@@ -10,17 +10,21 @@ func TestIter(t *testing.T) {
 	iter := testTreap.NewIter()
 	defer iter.Close()
 
-	out := new(strings.Builder)
-	for {
-		n, ok := iter.Next()
-		if !ok {
-			break
+	for i := 0; i < 8; i++ {
+		out := new(strings.Builder)
+		for {
+			n, ok := iter.Next()
+			if !ok {
+				break
+			}
+			fmt.Fprintf(out, "%v", n)
 		}
-		fmt.Fprintf(out, "%v", n)
-	}
 
-	if out.String() != "132654" {
-		t.Fatalf("got %v", out.String())
+		if out.String() != "132654" {
+			t.Fatalf("got %v", out.String())
+		}
+
+		iter.Rewind()
 	}
 }
 

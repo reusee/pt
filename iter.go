@@ -1,6 +1,7 @@
 package pt
 
 type Iter[T Ordered[T]] struct {
+	root    *Treap[T]
 	current *Treap[T]
 	stack   []*Treap[T]
 }
@@ -60,12 +61,18 @@ func (i *Iter[T]) Seek(pivot T) (ret T, ok bool) {
 	return
 }
 
+func (i *Iter[T]) Rewind() {
+	i.current = i.root
+	i.stack = i.stack[:0]
+}
+
 func (i *Iter[T]) Close() {
 	putIter(i)
 }
 
 func (n *Treap[T]) NewIter() *Iter[T] {
 	iter := getIter[T]()
+	iter.root = n
 	iter.current = n
 	return iter
 }
