@@ -222,18 +222,21 @@ func (n *Treap[T]) Length() int {
 }
 
 func (n *Treap[T]) Get(pivot T) (ret T, ok bool) {
-	if n == nil {
-		return
+	for {
+		if n == nil {
+			return
+		}
+		switch pivot.Compare(n.value) {
+		case 0:
+			return n.value, true
+		case -1:
+			n = n.left
+		case 1:
+			n = n.right
+		default:
+			panic("bad Compare result") // NOCOVER
+		}
 	}
-	switch pivot.Compare(n.value) {
-	case 0:
-		return n.value, true
-	case -1:
-		return n.left.Get(pivot)
-	case 1:
-		return n.right.Get(pivot)
-	}
-	panic("bad Compare result") // NOCOVER
 }
 
 func Build[T Ordered[T]](source PrioritySource, slice []T) *Treap[T] {
