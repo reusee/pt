@@ -27,7 +27,7 @@ func getIter[T Ordered[T]]() *Iter[T] {
 func putIter[T Ordered[T]](iter *Iter[T]) {
 	iter.stack = iter.stack[:0]
 	iter.root = nil
-	iter.current = nil
+	iter.next = nil
 	t := reflect.TypeFor[T]()
 	v, ok := iterPool.Load(t)
 	if ok {
