@@ -3,7 +3,7 @@ package pt
 import (
 	"io"
 	"math"
-	"math/rand/v2"
+	"math/rand"
 	"testing"
 )
 

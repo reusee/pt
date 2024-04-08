@@ -1,7 +1,7 @@
 package pt
 
 import (
-	"math/rand/v2"
+	"math/rand"
 	"testing"
 )
 
@@ -33,7 +33,7 @@ func BenchmarkSplit(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		n, _ = n.Split(Int(rand.N(b.N)), false)
+		n, _ = n.Split(Int(rand.Intn(b.N)), false)
 	}
 }
 

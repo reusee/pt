@@ -1,13 +1,13 @@
 package pt
 
 import (
-	"math/rand/v2"
+	"math/rand"
 	"testing"
 )
 
 func FuzzTreap(f *testing.F) {
-	f.Fuzz(func(t *testing.T, i uint64) {
-		r := rand.New(rand.NewPCG(i, i))
+	f.Fuzz(func(t *testing.T, i int64) {
+		r := rand.New(rand.NewSource(i))
 		data := r.Perm(4096)
 
 		var node *Treap[Int]
@@ -16,7 +16,7 @@ func FuzzTreap(f *testing.F) {
 			var existed bool
 			node, existed = node.Upsert(
 				Int(v),
-				r.Int64()-1,
+				r.Int63()-1,
 				false,
 			)
 			if existed {
@@ -29,7 +29,7 @@ func FuzzTreap(f *testing.F) {
 			// upsert again
 			node, existed = node.Upsert(
 				Int(v),
-				r.Int64()-1,
+				r.Int63()-1,
 				false,
 			)
 			if !existed {
