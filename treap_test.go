@@ -189,3 +189,25 @@ func TestMutateUpsert(t *testing.T) {
 		}
 	}
 }
+
+func TestBulkRemove(t *testing.T) {
+	ps := NewPrioritySource()
+	for i := 0; i < 128; i++ {
+
+		const num = 1024
+		var slice []Int
+		for i := 0; i < num; i++ {
+			slice = append(slice, Int(i))
+		}
+		n := Build(ps, slice)
+		if n.Length() != num {
+			t.Fatal()
+		}
+		toRemove := Build(ps, slice[:len(slice)/2])
+		n = n.BulkRemove(toRemove, false)
+		if n.Length() != num/2 {
+			t.Fatalf("got %v", n.Length())
+		}
+
+	}
+}

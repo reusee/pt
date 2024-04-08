@@ -273,3 +273,38 @@ func heapify[T Ordered[T]](n *Treap[T]) {
 		heapify(max)
 	}
 }
+
+func (t *Treap[T]) BulkRemove(t2 *Treap[T], mutate bool) *Treap[T] {
+	if t2 == nil || t == nil {
+		return t
+	}
+	t2Split, exists := t2.Split(t.value, mutate)
+	if !exists {
+		return join(
+			t,
+			t.left.BulkRemove(t2Split.left, mutate),
+			t.right.BulkRemove(t2Split.right, mutate),
+			mutate,
+		)
+	}
+	if mutate {
+		t.priority = MinPriority
+		return join(
+			t,
+			t.left.BulkRemove(t2Split.left, mutate),
+			t.right.BulkRemove(t2Split.right, mutate),
+			mutate,
+		)
+	}
+	return join(
+		&Treap[T]{
+			value:    t.value,
+			priority: MinPriority,
+			left:     t.left,
+			right:    t.right,
+		},
+		t.left.BulkRemove(t2Split.left, mutate),
+		t.right.BulkRemove(t2Split.right, mutate),
+		mutate,
+	)
+}
