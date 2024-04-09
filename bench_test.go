@@ -2,6 +2,8 @@ package pt
 
 import (
 	"math/rand"
+	"sync"
+	"sync/atomic"
 	"testing"
 )
 
@@ -83,6 +85,54 @@ func BenchmarkUpsert65536(b *testing.B) {
 		for k := 0; k < 65536; k++ {
 			n, _ = n.Upsert(Int(k), ps(), false)
 		}
+	}
+}
+
+func BenchmarkParallelUpsert65536(b *testing.B) {
+	// workers
+	jobs := make(chan func(PrioritySource))
+	quit := make(chan bool)
+	defer func() {
+		close(quit)
+	}()
+	for i := 0; i < b.N; i++ {
+		go func() {
+			ps := NewPrioritySource()
+			for {
+				select {
+				case job := <-jobs:
+					job(ps)
+				case <-quit:
+					return
+				}
+			}
+		}()
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+
+		var n atomic.Pointer[Treap[Int]]
+		var wg sync.WaitGroup
+		wg.Add(65536)
+		for x := Int(0); x < 65536; x++ {
+			x := x
+			jobs <- func(ps PrioritySource) {
+				defer wg.Done()
+				for {
+					node := n.Load()
+					newNode, _ := node.Upsert(Int(x), ps(), false)
+					if n.CompareAndSwap(node, newNode) {
+						break
+					}
+				}
+			}
+		}
+		wg.Wait()
+		if n.Load().Length() != 65536 {
+			b.Fatal()
+		}
+
 	}
 }
 
