@@ -82,3 +82,7 @@ func (t *Treap[T]) Copy() *Treap[T] {
 	ret.root.Store(t.root.Load())
 	return ret
 }
+
+func (t *Treap[T]) NewIter() *Iter[T] {
+	return t.root.Load().NewIter()
+}
