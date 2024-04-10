@@ -182,20 +182,3 @@ func BenchmarkMutateUpsert(b *testing.B) {
 		n, _ = n.Upsert(Int(i), ps(), true)
 	}
 }
-
-func BenchmarkRemove(b *testing.B) {
-	var slice []Int
-	for i := 0; i < b.N; i++ {
-		slice = append(slice, Int(i))
-	}
-	ps := newPrioritySource()
-	n := build(ps, slice)
-	s := rand.Perm(b.N)
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		n, _ = n.Remove(Int(s[i]), false)
-	}
-	if n.Length() != 0 {
-		b.Fatal()
-	}
-}
