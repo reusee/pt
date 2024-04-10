@@ -8,16 +8,16 @@ import (
 )
 
 func BenchmarkUpsert(b *testing.B) {
-	ps := NewPrioritySource()
-	var n *Treap[Int]
+	ps := newPrioritySource()
+	var n *_Node[Int]
 	for i := 0; i < b.N; i++ {
 		n, _ = n.Upsert(Int(i), ps(), false)
 	}
 }
 
 func BenchmarkDelete(b *testing.B) {
-	ps := NewPrioritySource()
-	var n *Treap[Int]
+	ps := newPrioritySource()
+	var n *_Node[Int]
 	for i := 0; i < b.N; i++ {
 		n, _ = n.Upsert(Int(i), ps(), false)
 	}
@@ -28,8 +28,8 @@ func BenchmarkDelete(b *testing.B) {
 }
 
 func BenchmarkSplit(b *testing.B) {
-	ps := NewPrioritySource()
-	var n *Treap[Int]
+	ps := newPrioritySource()
+	var n *_Node[Int]
 	for i := 0; i < b.N; i++ {
 		n, _ = n.Upsert(Int(i), ps(), false)
 	}
@@ -40,7 +40,7 @@ func BenchmarkSplit(b *testing.B) {
 }
 
 func BenchmarkUpsertPriority(b *testing.B) {
-	var n *Treap[Int]
+	var n *_Node[Int]
 	n, _ = n.Upsert(1, -1, false) // will be the left node
 	n, _ = n.Upsert(3, -1, false) // will be the right node
 	for i := 0; i < b.N; i++ {
@@ -50,9 +50,9 @@ func BenchmarkUpsertPriority(b *testing.B) {
 }
 
 func BenchmarkUnion(b *testing.B) {
-	ps := NewPrioritySource()
+	ps := newPrioritySource()
 	const l = 1024
-	var n1, n2 *Treap[Int]
+	var n1, n2 *_Node[Int]
 	for i := 0; i < l; i++ {
 		n1, _ = n1.Upsert(Int(i), ps(), false)
 		n2, _ = n2.Upsert(Int(i), ps(), false)
@@ -64,8 +64,8 @@ func BenchmarkUnion(b *testing.B) {
 }
 
 func BenchmarkGet(b *testing.B) {
-	ps := NewPrioritySource()
-	var n *Treap[Int]
+	ps := newPrioritySource()
+	var n *_Node[Int]
 	for i := 0; i < b.N; i++ {
 		n, _ = n.Upsert(Int(i), ps(), false)
 	}
@@ -79,9 +79,9 @@ func BenchmarkGet(b *testing.B) {
 }
 
 func BenchmarkUpsert65536(b *testing.B) {
-	ps := NewPrioritySource()
+	ps := newPrioritySource()
 	for i := 0; i < b.N; i++ {
-		var n *Treap[Int]
+		var n *_Node[Int]
 		for k := 0; k < 65536; k++ {
 			n, _ = n.Upsert(Int(k), ps(), false)
 		}
@@ -90,14 +90,14 @@ func BenchmarkUpsert65536(b *testing.B) {
 
 func BenchmarkParallelUpsert65536(b *testing.B) {
 	// workers
-	jobs := make(chan func(PrioritySource))
+	jobs := make(chan func(_PrioritySource))
 	quit := make(chan bool)
 	defer func() {
 		close(quit)
 	}()
 	for i := 0; i < b.N; i++ {
 		go func() {
-			ps := NewPrioritySource()
+			ps := newPrioritySource()
 			for {
 				select {
 				case job := <-jobs:
@@ -112,12 +112,12 @@ func BenchmarkParallelUpsert65536(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 
-		var n atomic.Pointer[Treap[Int]]
+		var n atomic.Pointer[_Node[Int]]
 		var wg sync.WaitGroup
 		wg.Add(65536)
 		for x := Int(0); x < 65536; x++ {
 			x := x
-			jobs <- func(ps PrioritySource) {
+			jobs <- func(ps _PrioritySource) {
 				defer wg.Done()
 				for {
 					node := n.Load()
@@ -137,35 +137,35 @@ func BenchmarkParallelUpsert65536(b *testing.B) {
 }
 
 func BenchmarkBuild65536(b *testing.B) {
-	ps := NewPrioritySource()
+	ps := newPrioritySource()
 	var slice []Int
 	for i := 0; i < 65536; i++ {
 		slice = append(slice, Int(i))
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Build(ps, slice)
+		build(ps, slice)
 	}
 }
 
 func BenchmarkBuildUnion65536(b *testing.B) {
-	ps := NewPrioritySource()
+	ps := newPrioritySource()
 	var slice []Int
 	for i := 0; i < 65536; i++ {
 		slice = append(slice, Int(i))
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Build(ps, slice[:len(slice)/2]).Union(
-			Build(ps, slice[len(slice)/2:]),
+		build(ps, slice[:len(slice)/2]).Union(
+			build(ps, slice[len(slice)/2:]),
 			false,
 		)
 	}
 }
 
 func BenchmarkMutateUpsert65536(b *testing.B) {
-	ps := NewPrioritySource()
-	var n *Treap[Int]
+	ps := newPrioritySource()
+	var n *_Node[Int]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for i := 0; i < 65536; i++ {
@@ -175,8 +175,8 @@ func BenchmarkMutateUpsert65536(b *testing.B) {
 }
 
 func BenchmarkMutateUpsert(b *testing.B) {
-	ps := NewPrioritySource()
-	var n *Treap[Int]
+	ps := newPrioritySource()
+	var n *_Node[Int]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		n, _ = n.Upsert(Int(i), ps(), true)
@@ -188,8 +188,8 @@ func BenchmarkRemove(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		slice = append(slice, Int(i))
 	}
-	ps := NewPrioritySource()
-	n := Build(ps, slice)
+	ps := newPrioritySource()
+	n := build(ps, slice)
 	s := rand.Perm(b.N)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

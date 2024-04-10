@@ -7,7 +7,7 @@ import (
 )
 
 func TestIter(t *testing.T) {
-	iter := testTreap.NewIter()
+	iter := testNode.NewIter()
 	defer iter.Close()
 
 	for i := 0; i < 8; i++ {
@@ -28,18 +28,18 @@ func TestIter(t *testing.T) {
 	}
 }
 
-var testTreap = &Treap[Int]{
-	left: &Treap[Int]{
-		left: &Treap[Int]{
+var testNode = &_Node[Int]{
+	left: &_Node[Int]{
+		left: &_Node[Int]{
 			value: 1,
 		},
-		right: &Treap[Int]{
+		right: &_Node[Int]{
 			value: 2,
 		},
 		value: 3,
 	},
-	right: &Treap[Int]{
-		right: &Treap[Int]{
+	right: &_Node[Int]{
+		right: &_Node[Int]{
 			value: 4,
 		},
 		value: 5,
@@ -49,7 +49,7 @@ var testTreap = &Treap[Int]{
 
 func BenchmarkIter(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		iter := testTreap.NewIter()
+		iter := testNode.NewIter()
 		for {
 			_, ok := iter.Next()
 			if !ok {
@@ -63,7 +63,7 @@ func BenchmarkIter(b *testing.B) {
 func BenchmarkParallelIter(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			iter := testTreap.NewIter()
+			iter := testNode.NewIter()
 			for {
 				_, ok := iter.Next()
 				if !ok {
@@ -76,8 +76,8 @@ func BenchmarkParallelIter(b *testing.B) {
 }
 
 func TestSeek(t *testing.T) {
-	ps := NewPrioritySource()
-	var node *Treap[Int]
+	ps := newPrioritySource()
+	var node *_Node[Int]
 	const num = 128
 	// insert
 	var expected []Int

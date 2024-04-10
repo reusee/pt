@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func (n *Treap[T]) checkHeap() {
+func (n *_Node[T]) checkHeap() {
 	if n == nil {
 		return
 	}
@@ -21,10 +21,10 @@ func (n *Treap[T]) checkHeap() {
 	n.right.checkHeap()
 }
 
-func TestTreap(t *testing.T) {
-	ps := NewPrioritySource()
+func TestNode(t *testing.T) {
+	ps := newPrioritySource()
 	const num = 8192
-	var n *Treap[Int]
+	var n *_Node[Int]
 
 	// upsert
 	for _, i := range rand.Perm(num) {
@@ -92,7 +92,7 @@ func TestTreap(t *testing.T) {
 		t.Fatal()
 	}
 	for i := 0; i < num; i++ {
-		u := n.Union(&Treap[Int]{
+		u := n.Union(&_Node[Int]{
 			value:    Int(i),
 			priority: ps(),
 		}, false)
@@ -115,15 +115,15 @@ func TestTreap(t *testing.T) {
 }
 
 func TestUpsertPersistence(t *testing.T) {
-	ps := NewPrioritySource()
+	ps := newPrioritySource()
 	const num = 1024
-	var treaps []*Treap[Int]
-	var n *Treap[Int]
+	var nodes []*_Node[Int]
+	var n *_Node[Int]
 	for i := Int(0); i < num; i++ {
 		n, _ = n.Upsert(i, ps(), false)
-		treaps = append(treaps, n)
+		nodes = append(nodes, n)
 	}
-	for i, n := range treaps {
+	for i, n := range nodes {
 		iter := n.NewIter()
 		for expected := Int(0); expected < Int(i+1); expected++ {
 			got, ok := iter.Next()
@@ -143,12 +143,12 @@ func TestUpsertPersistence(t *testing.T) {
 }
 
 func TestBuild(t *testing.T) {
-	ps := NewPrioritySource()
+	ps := newPrioritySource()
 	var slice []Int
 	for i := 0; i < 65536; i++ {
 		slice = append(slice, Int(i))
 	}
-	n := Build(ps, slice)
+	n := build(ps, slice)
 	if n.Length() != 65536 {
 		t.Fatal()
 	}
@@ -156,8 +156,8 @@ func TestBuild(t *testing.T) {
 }
 
 func TestDump(t *testing.T) {
-	ps := NewPrioritySource()
-	var n *Treap[Int]
+	ps := newPrioritySource()
+	var n *_Node[Int]
 	for i := 0; i < 8; i++ {
 		n, _ = n.Upsert(Int(i), ps(), false)
 	}
@@ -165,7 +165,7 @@ func TestDump(t *testing.T) {
 }
 
 func TestGetFromNil(t *testing.T) {
-	var n *Treap[Int]
+	var n *_Node[Int]
 	_, ok := n.Get(42)
 	if ok {
 		t.Fatal()
@@ -173,8 +173,8 @@ func TestGetFromNil(t *testing.T) {
 }
 
 func TestMutateUpsert(t *testing.T) {
-	ps := NewPrioritySource()
-	var n *Treap[Int]
+	ps := newPrioritySource()
+	var n *_Node[Int]
 	for i := 0; i < 4096; i++ {
 		n, _ = n.Upsert(Int(i), ps(), true)
 		if n.Length() != i+1 {
@@ -191,7 +191,7 @@ func TestMutateUpsert(t *testing.T) {
 }
 
 func TestBulkRemove(t *testing.T) {
-	ps := NewPrioritySource()
+	ps := newPrioritySource()
 	for i := 0; i < 128; i++ {
 
 		const num = 1024
@@ -199,11 +199,11 @@ func TestBulkRemove(t *testing.T) {
 		for i := 0; i < num; i++ {
 			slice = append(slice, Int(i))
 		}
-		n := Build(ps, slice)
+		n := build(ps, slice)
 		if n.Length() != num {
 			t.Fatal()
 		}
-		toRemove := Build(ps, slice[:len(slice)/2])
+		toRemove := build(ps, slice[:len(slice)/2])
 		n = n.BulkRemove(toRemove, false)
 		if n.Length() != num/2 {
 			t.Fatalf("got %v", n.Length())

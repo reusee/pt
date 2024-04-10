@@ -5,12 +5,12 @@ import (
 	"testing"
 )
 
-func FuzzTreap(f *testing.F) {
+func FuzzNode(f *testing.F) {
 	f.Fuzz(func(t *testing.T, i int64) {
 		r := rand.New(rand.NewSource(i))
 		data := r.Perm(4096)
 
-		var node *Treap[Int]
+		var node *_Node[Int]
 		for i, v := range data {
 			// upsert
 			var existed bool

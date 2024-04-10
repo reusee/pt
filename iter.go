@@ -1,9 +1,9 @@
 package pt
 
 type Iter[T Ordered[T]] struct {
-	root  *Treap[T]
-	next  *Treap[T]
-	stack []*Treap[T]
+	root  *_Node[T]
+	next  *_Node[T]
+	stack []*_Node[T]
 }
 
 func (i *Iter[T]) Next() (ret T, ok bool) {
@@ -70,7 +70,7 @@ func (i *Iter[T]) Close() {
 	putIter(i)
 }
 
-func (n *Treap[T]) NewIter() *Iter[T] {
+func (n *_Node[T]) NewIter() *Iter[T] {
 	iter := getIter[T]()
 	iter.root = n
 	iter.next = n
