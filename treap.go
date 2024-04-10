@@ -25,12 +25,12 @@ func (t *Treap[T]) Upsert(value T) (existed bool) {
 	}
 }
 
-func (t *Treap[T]) Remove(value T) (removed bool) {
+func (t *Treap[T]) Delete(value T) (deleted bool) {
 	for {
 		root := t.root.Load()
-		newRoot, removed := root.Remove(value, false)
+		newRoot, deleted := root.Delete(value, false)
 		if t.root.CompareAndSwap(root, newRoot) {
-			return removed
+			return deleted
 		}
 	}
 }
@@ -53,11 +53,11 @@ func (t *Treap[T]) Get(pivot T) (ret T, ok bool) {
 	return t.root.Load().Get(pivot)
 }
 
-func (t *Treap[T]) BulkRemove(values []T) {
+func (t *Treap[T]) BulkDelete(values []T) {
 	node := build(t.prioritySource, sortUnique(values, T.Compare))
 	for {
 		root := t.root.Load()
-		newRoot := root.BulkRemove(node, false)
+		newRoot := root.BulkDelete(node, false)
 		if t.root.CompareAndSwap(root, newRoot) {
 			return
 		}

@@ -187,7 +187,7 @@ func (n *_Node[T]) Dump(out io.Writer, level int) {
 	n.right.Dump(out, level+1)
 }
 
-func (n *_Node[T]) Remove(value T, mutate bool) (ret *_Node[T], removed bool) {
+func (n *_Node[T]) Delete(value T, mutate bool) (ret *_Node[T], deleted bool) {
 	return n.Upsert(value, minPriority, mutate)
 }
 
@@ -274,7 +274,7 @@ func heapify[T Ordered[T]](n *_Node[T]) {
 	}
 }
 
-func (t *_Node[T]) BulkRemove(t2 *_Node[T], mutate bool) *_Node[T] {
+func (t *_Node[T]) BulkDelete(t2 *_Node[T], mutate bool) *_Node[T] {
 	if t2 == nil || t == nil {
 		return t
 	}
@@ -282,8 +282,8 @@ func (t *_Node[T]) BulkRemove(t2 *_Node[T], mutate bool) *_Node[T] {
 	if !exists {
 		return join(
 			t,
-			t.left.BulkRemove(t2Split.left, mutate),
-			t.right.BulkRemove(t2Split.right, mutate),
+			t.left.BulkDelete(t2Split.left, mutate),
+			t.right.BulkDelete(t2Split.right, mutate),
 			mutate,
 		)
 	}
@@ -291,8 +291,8 @@ func (t *_Node[T]) BulkRemove(t2 *_Node[T], mutate bool) *_Node[T] {
 		t.priority = minPriority
 		return join(
 			t,
-			t.left.BulkRemove(t2Split.left, mutate),
-			t.right.BulkRemove(t2Split.right, mutate),
+			t.left.BulkDelete(t2Split.left, mutate),
+			t.right.BulkDelete(t2Split.right, mutate),
 			mutate,
 		)
 	}
@@ -303,8 +303,8 @@ func (t *_Node[T]) BulkRemove(t2 *_Node[T], mutate bool) *_Node[T] {
 			left:     t.left,
 			right:    t.right,
 		},
-		t.left.BulkRemove(t2Split.left, mutate),
-		t.right.BulkRemove(t2Split.right, mutate),
+		t.left.BulkDelete(t2Split.left, mutate),
+		t.right.BulkDelete(t2Split.right, mutate),
 		mutate,
 	)
 }

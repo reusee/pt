@@ -101,11 +101,11 @@ func TestNode(t *testing.T) {
 		}
 	}
 
-	// remove
+	// delete
 	for _, i := range rand.Perm(num) {
-		removed := false
-		n, removed = n.Remove(Int(i), false)
-		if !removed {
+		deleted := false
+		n, deleted = n.Delete(Int(i), false)
+		if !deleted {
 			t.Fatal()
 		}
 	}
@@ -190,7 +190,7 @@ func TestMutateUpsert(t *testing.T) {
 	}
 }
 
-func TestBulkRemove(t *testing.T) {
+func TestBulkDelete(t *testing.T) {
 	ps := newPrioritySource()
 	for i := 0; i < 128; i++ {
 
@@ -203,8 +203,8 @@ func TestBulkRemove(t *testing.T) {
 		if n.Length() != num {
 			t.Fatal()
 		}
-		toRemove := build(ps, slice[:len(slice)/2])
-		n = n.BulkRemove(toRemove, false)
+		toDelete := build(ps, slice[:len(slice)/2])
+		n = n.BulkDelete(toDelete, false)
 		if n.Length() != num/2 {
 			t.Fatalf("got %v", n.Length())
 		}
