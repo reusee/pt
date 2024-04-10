@@ -74,3 +74,11 @@ func (t *Treap[T]) BulkUpsert(values []T) {
 		}
 	}
 }
+
+func (t *Treap[T]) Copy() *Treap[T] {
+	ret := &Treap[T]{
+		prioritySource: t.prioritySource,
+	}
+	ret.root.Store(t.root.Load())
+	return ret
+}
